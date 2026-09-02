@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-indigo: #000000;
+  --color-brand-gold: #4A43DB;
+  --color-brand-cyan: #11D7B6;
+  --color-brand-graphite: rgba(255, 255, 255, 0.08);
+  --color-brand-alabaster: #f1f5f9;
+  
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+@layer utilities {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .canvas-bg {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .timeline-scrubber {
+    background: linear-gradient(90deg, #3D80FD 0%, #3D80FD 45%, rgba(255, 255, 255, 0.1) 45%, rgba(255, 255, 255, 0.1) 100%);
+  }
+}
+
+body {
+  margin: 0; padding: 0;
+  background-color: var(--color-brand-indigo);
+  color: var(--color-brand-alabaster);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+/* Animation Engine */
+@keyframes anim-float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(var(--anim-x, -50px), var(--anim-y, 50px)) scale(1.2); }
+    50% { transform: translate(calc(var(--anim-x, -50px) * 1.5), calc(var(--anim-y, 50px) * 1.5)) scale(0.8); }
+    75% { transform: translate(calc(var(--anim-x, -50px) * 0.8), calc(var(--anim-y, 50px) * 0.8)) scale(1.1); }
+}
+@keyframes anim-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(var(--anim-y, -50px)); }
+}
+@keyframes anim-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.5; }
+}
+@keyframes anim-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@keyframes anim-custom-path {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(var(--anim-x, 100px), var(--anim-y, 100px)); }
+}
+
+.anim-float { animation: anim-float var(--anim-duration, 10s) cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.anim-bounce { animation: anim-bounce var(--anim-duration, 2s) ease-in-out infinite; }
+.anim-pulse { animation: anim-pulse var(--anim-duration, 2s) ease-in-out infinite; }
+.anim-spin { animation: anim-spin var(--anim-duration, 5s) linear infinite; }
+.anim-custom-path { animation: anim-custom-path var(--anim-duration, 5s) ease-in-out infinite; }
+.anim-none { animation: none; }
+
+@keyframes anim-particle-dispersion {
+    0%, 100% { transform: translate(0, 0) scale(1); filter: blur(0px); opacity: 1; }
+    20% { transform: translate(10px, -10px) scale(1.05); filter: blur(2px); opacity: 0.8; }
+    40% { transform: translate(-15px, 5px) scale(0.95); filter: blur(4px); opacity: 0.5; }
+    60% { transform: translate(5px, 15px) scale(1.1); filter: blur(1px); opacity: 0.9; }
+    80% { transform: translate(-10px, -5px) scale(0.9); filter: blur(5px); opacity: 0.3; }
+}
+@keyframes anim-explosion {
+    0% { transform: scale(0.1); opacity: 1; filter: blur(0px); }
+    40% { opacity: 1; }
+    100% { transform: scale(3); opacity: 0; filter: blur(15px); }
+}
+@keyframes anim-mesh {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    33% { transform: scale(1.1) rotate(5deg) translate(20px, -20px); }
+    66% { transform: scale(0.95) rotate(-5deg) translate(-20px, 20px); }
+}
+@keyframes anim-fluid {
+    0%, 100% { transform: scale(1, 1) skew(0deg, 0deg); filter: blur(0px); }
+    25% { transform: scale(1.1, 0.9) skew(2deg, -2deg); filter: blur(2px); }
+    50% { transform: scale(0.9, 1.1) skew(-2deg, 2deg); filter: blur(4px); }
+    75% { transform: scale(1.05, 0.95) skew(1deg, -1deg); filter: blur(2px); }
+}
+
+.anim-particle-dispersion { animation: anim-particle-dispersion var(--anim-duration, 2s) infinite; }
+.anim-explosion { animation: anim-explosion var(--anim-duration, 2s) ease-out infinite; }
+.anim-mesh { animation: anim-mesh var(--anim-duration, 8s) ease-in-out infinite; }
+.anim-fluid { animation: anim-fluid var(--anim-duration, 4s) ease-in-out infinite; }
