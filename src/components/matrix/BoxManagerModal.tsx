@@ -185,7 +185,7 @@ export const BoxManagerModal: React.FC<BoxManagerModalProps> = ({
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-[#0E1726] border border-[#1E293B] rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1E293B] bg-[#081126]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1E293B] bg-[#060C04]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center">
               <Square className="w-5 h-5 text-blue-400" />
@@ -314,7 +314,7 @@ export const BoxManagerModal: React.FC<BoxManagerModalProps> = ({
 
           {/* Right: Selected Box Parametric Editor (7 cols) */}
           {currentBox && (
-            <div className="md:col-span-7 bg-[#081126] border border-[#1E293B] rounded-xl p-4 flex flex-col gap-4">
+            <div className="md:col-span-7 bg-[#060C04] border border-[#1E293B] rounded-xl p-4 flex flex-col gap-4">
               <div className="flex items-center justify-between border-b border-[#1E293B] pb-3">
                 <div className="flex items-center gap-2">
                   <div
@@ -546,7 +546,7 @@ export const BoxManagerModal: React.FC<BoxManagerModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#1E293B] bg-[#081126] flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-[#1E293B] bg-[#060C04] flex items-center justify-between">
           <div className="text-xs text-slate-400 font-mono">
             Todas las medidas responden al módulo base <span className="text-blue-400 font-bold">1M = 67px</span> con origen simétrico en <span className="text-cyan-400 font-bold">(413, 413)</span>.
           </div>

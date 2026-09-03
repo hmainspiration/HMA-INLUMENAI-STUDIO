@@ -435,7 +435,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
   // Export current frame as clean SVG
   const handleExportCurrentSvg = () => {
     const pieces = getHMAPiecesFromShape(currentLogo.shapes);
-    const svgCode = generateCleanSvg(pieces, 1080, true, bgColor === 'white' ? '#ffffff' : '#081126');
+    const svgCode = generateCleanSvg(pieces, 1080, true, bgColor === 'white' ? '#FEFAE8' : '#060C04');
     downloadFile(svgCode, `INLUMENAI_MOTION_${currentLogo.serviceId}_frame.svg`, 'image/svg+xml');
   };
 
@@ -523,9 +523,17 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
 
   return (
     <div className="flex flex-1 h-[calc(100vh-4rem)] overflow-hidden bg-[#040915] select-none relative">
+      {/* Mobile Backdrop for Sidebar */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-30 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Left Control Panel */}
       {isSidebarOpen && (
-        <aside className="w-88 border-r border-white/10 bg-[#081126]/95 backdrop-blur-md p-4 flex flex-col justify-between overflow-y-auto space-y-4 shrink-0 z-20">
+        <aside className="fixed md:relative inset-y-0 left-0 z-40 md:z-auto w-88 max-w-[88vw] sm:max-w-xs border-r border-white/10 bg-[#060C04]/95 backdrop-blur-md p-4 flex flex-col justify-between overflow-y-auto space-y-4 shrink-0 shadow-2xl md:shadow-none">
           <div className="space-y-4">
             {/* Header */}
             <div className="pb-3 border-b border-white/10 flex items-center justify-between">
@@ -721,11 +729,18 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
             </button>
 
             <button
+              id="btn-motion-to-canvas"
               onClick={handleSendToCanvas}
-              className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 active:scale-98 transition-all"
+              title="Transferir la secuencia animada a Animation (Paso 3 del ecosistema)"
+              className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold flex items-center justify-between shadow-lg shadow-purple-500/25 active:scale-98 transition-all cursor-pointer"
             >
-              <ExternalLink className="w-4 h-4" />
-              <span>Transferir a Canvas Animado</span>
+              <div className="flex items-center gap-2">
+                <ExternalLink className="w-4 h-4 text-purple-200" />
+                <span>Continuar a Animation</span>
+              </div>
+              <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded font-mono font-black">
+                Paso 3 ➔
+              </span>
             </button>
 
             <button
@@ -761,7 +776,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
           <button
             onClick={() => setIsSidebarOpen(true)}
             title="Mostrar panel de control y presets"
-            className="absolute top-6 left-6 z-30 flex items-center gap-2 px-3 py-2 rounded-xl bg-[#081126]/95 border border-cyan-500/40 text-cyan-300 hover:text-white hover:bg-cyan-950/80 shadow-2xl backdrop-blur-md transition-all text-xs font-mono font-bold group animate-fadeIn"
+            className="absolute top-6 left-6 z-30 flex items-center gap-2 px-3 py-2 rounded-xl bg-[#060C04]/95 border border-cyan-500/40 text-cyan-300 hover:text-white hover:bg-cyan-950/80 shadow-2xl backdrop-blur-md transition-all text-xs font-mono font-bold group animate-fadeIn"
           >
             <PanelLeftOpen className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
             <span>Controles & Isotipos</span>
@@ -769,7 +784,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
         )}
 
         {/* Top Info Banner */}
-        <div className="w-full max-w-4xl flex items-center justify-between px-4 py-2 bg-[#081126]/80 rounded-xl border border-white/10 shadow-lg text-xs font-mono">
+        <div className="w-full max-w-4xl flex items-center justify-between px-4 py-2 bg-[#060C04]/80 rounded-xl border border-white/10 shadow-lg text-xs font-mono">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen((prev) => !prev)}
@@ -803,7 +818,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
           ref={containerRef}
           className="w-full max-w-[620px] aspect-square rounded-2xl border border-white/15 shadow-2xl shadow-cyan-500/10 flex items-center justify-center relative overflow-hidden my-auto transition-colors duration-300"
           style={{
-            backgroundColor: bgColor === 'transparent' ? 'transparent' : bgColor,
+            backgroundColor: bgColor === 'transparent' ? 'transparent' : bgColor === 'black' ? '#060C04' : '#FEFAE8',
             backgroundImage:
               bgColor === 'transparent'
                 ? 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMUlEQVQ4T2NkYGAQYcAP3neF/wX5GBEVM4oZcAIYjYThYCwMhkYDE8wH0WhgMBr4AQDX5RE+w9G8wAAAAABJRU5ErkJggg==")'
@@ -891,7 +906,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
         </div>
 
         {/* Interactive Timeline Bar */}
-        <div className="w-full max-w-4xl bg-[#081126]/95 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3">
+        <div className="w-full max-w-4xl bg-[#060C04]/95 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3">
           {/* Scrubber Progress Slider */}
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-mono text-cyan-400 font-bold w-12 text-right">

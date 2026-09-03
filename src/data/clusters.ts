@@ -1,7 +1,7 @@
 import { ServiceDefinition } from '../types';
 
 export const GLOBAL_NEUTRALS = {
-  darkBg: '#081126',
+  darkBg: '#060C04',
   panelBg: '#0E1726',
   cardBg: '#131E32',
   borderColor: '#1E293B',

@@ -26,7 +26,8 @@ import {
   PanelRightOpen,
   Sliders,
   Layers,
-  CheckSquare
+  CheckSquare,
+  Film
 } from 'lucide-react';
 import { BoundingBoxSize, GridSettings, HMAPiece, MoveStepMode, ShapeType } from '../../types/hma';
 import { MODULE_PX, PIECE_GEOMETRIES, getShapeSvgPath } from '../../data/hmaDefinitions';
@@ -48,6 +49,7 @@ interface HmaMatrixStudioProps {
   activePresetName: string;
   onLoadJson?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onLoadSvg?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onProceedToMotion?: () => void;
 }
 
 export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
@@ -61,7 +63,8 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
   colorProfundo,
   activePresetName,
   onLoadJson,
-  onLoadSvg
+  onLoadSvg,
+  onProceedToMotion
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [boxes, setBoxes] = useState<TechnicalBox[]>(DEFAULT_TECHNICAL_BOXES);
@@ -790,7 +793,7 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
                 cy={-halfH + rad}
                 r={3}
                 fill="#10b981"
-                stroke="#081126"
+                stroke="#060C04"
                 strokeWidth="1"
               />
               <circle
@@ -798,7 +801,7 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
                 cy={halfH - rad}
                 r={3}
                 fill="#10b981"
-                stroke="#081126"
+                stroke="#060C04"
                 strokeWidth="1"
               />
               {/* Center point */}
@@ -868,21 +871,31 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
 
   return (
     <div className="flex-1 flex overflow-hidden relative">
+      {/* Mobile Backdrop for Left Panel */}
+      {isLeftPanelOpen && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-30 md:hidden"
+          onClick={() => setIsLeftPanelOpen(false)}
+        />
+      )}
+
       {/* Left Toolbar with Collapsible Dropdowns */}
       {isLeftPanelOpen && (
-        <PieceToolbar
-          gridSettings={gridSettings}
-          setGridSettings={setGridSettings}
-          pieces={pieces}
-          selectedPieceId={selectedPieceId}
-          onSelectPiece={(id) => setSelectedPieceId(id)}
-          onSelectAllPieces={handleSelectAllPieces}
-          onRotateGroup={handleRotateGroup}
-          onAddPiece={handleAddPiece}
-          onTogglePieceVisibility={handleTogglePieceVisibility}
-          onOpenBoxManager={() => setIsBoxManagerOpen(true)}
-          onClose={() => setIsLeftPanelOpen(false)}
-        />
+        <div className="fixed md:relative inset-y-0 left-0 z-40 md:z-auto h-full max-w-[88vw] sm:max-w-xs shadow-2xl md:shadow-none shrink-0">
+          <PieceToolbar
+            gridSettings={gridSettings}
+            setGridSettings={setGridSettings}
+            pieces={pieces}
+            selectedPieceId={selectedPieceId}
+            onSelectPiece={(id) => setSelectedPieceId(id)}
+            onSelectAllPieces={handleSelectAllPieces}
+            onRotateGroup={handleRotateGroup}
+            onAddPiece={handleAddPiece}
+            onTogglePieceVisibility={handleTogglePieceVisibility}
+            onOpenBoxManager={() => setIsBoxManagerOpen(true)}
+            onClose={() => setIsLeftPanelOpen(false)}
+          />
+        </div>
       )}
 
       {/* Center Interactive SVG Canvas Stage */}
@@ -901,7 +914,7 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
           <button
             onClick={() => setIsLeftPanelOpen(true)}
             title="Mostrar barra de herramientas izquierda (13 Formas / Retícula)"
-            className="absolute top-4 left-4 z-30 flex items-center gap-2 px-3 py-2 rounded-xl bg-[#081126]/95 border border-cyan-500/40 text-cyan-300 hover:text-white hover:bg-cyan-950/80 shadow-2xl backdrop-blur-md transition-all text-xs font-mono font-bold group animate-fadeIn"
+            className="absolute top-4 left-4 z-30 flex items-center gap-2 px-3 py-2 rounded-xl bg-[#060C04]/95 border border-cyan-500/40 text-cyan-300 hover:text-white hover:bg-cyan-950/80 shadow-2xl backdrop-blur-md transition-all text-xs font-mono font-bold group animate-fadeIn"
           >
             <PanelLeftOpen className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
             <span>Herramientas (13 Formas)</span>
@@ -922,7 +935,7 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
         )}
 
         {/* Floating Canvas View Controls */}
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-[#081126]/90 border border-white/10 p-1.5 rounded-xl shadow-xl backdrop-blur-md">
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-[#060C04]/90 border border-white/10 p-1.5 rounded-xl shadow-xl backdrop-blur-md">
           {/* Toggle Left Sidebar */}
           <button
             onClick={() => setIsLeftPanelOpen((prev) => !prev)}
@@ -1038,7 +1051,7 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
           <button
             onClick={() => setIsRightPanelOpen(true)}
             title="Mostrar panel inspector derecho"
-            className="absolute top-16 right-4 z-30 flex items-center gap-2 px-3 py-2 rounded-xl bg-[#081126]/95 border border-cyan-500/40 text-cyan-300 hover:text-white hover:bg-cyan-950/80 shadow-2xl backdrop-blur-md transition-all text-xs font-mono font-bold group animate-fadeIn"
+            className="absolute top-16 right-4 z-30 flex items-center gap-2 px-3 py-2 rounded-xl bg-[#060C04]/95 border border-cyan-500/40 text-cyan-300 hover:text-white hover:bg-cyan-950/80 shadow-2xl backdrop-blur-md transition-all text-xs font-mono font-bold group animate-fadeIn"
           >
             <PanelRightOpen className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
             <span>Inspector</span>
@@ -1128,7 +1141,7 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
                     {/* Center Anchor Point Handle */}
                     {isSelected && (
                       <g>
-                        <circle cx="0" cy="0" r="4" fill="#06B6D4" stroke="#081126" strokeWidth="1.5" />
+                        <circle cx="0" cy="0" r="4" fill="#06B6D4" stroke="#060C04" strokeWidth="1.5" />
                         <line x1="-8" y1="0" x2="8" y2="0" stroke="#06B6D4" strokeWidth="1" />
                         <line x1="0" y1="-8" x2="0" y2="8" stroke="#06B6D4" strokeWidth="1" />
                       </g>
@@ -1156,7 +1169,7 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
         </svg>
 
         {/* Bottom Technical Status Bar */}
-        <div className="absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between px-4 py-2 bg-[#081126]/90 border border-white/10 rounded-xl shadow-xl backdrop-blur-md text-[11px] font-mono text-slate-300">
+        <div className="absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between px-4 py-2 bg-[#060C04]/90 border border-white/10 rounded-xl shadow-xl backdrop-blur-md text-[11px] font-mono text-slate-300">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5 text-cyan-300">
               <Crosshair className="w-3.5 h-3.5 text-cyan-400" />
@@ -1168,18 +1181,18 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {isAllSelected ? (
-              <span className="text-cyan-300 font-bold flex items-center gap-1">
-                <CheckSquare className="w-3.5 h-3.5 text-cyan-400" />
-                Todas las formas seleccionadas ({pieces.length})
+              <span className="text-cyan-300 font-bold flex items-center gap-1 text-[11px] truncate">
+                <CheckSquare className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                Todas ({pieces.length})
               </span>
             ) : selectedPiece ? (
-              <span className="text-emerald-300 font-bold">
-                Seleccionado: {selectedPiece.name} [{Math.round(selectedPiece.rotation)}°]
+              <span className="text-emerald-300 font-bold text-[11px] truncate max-w-[140px] sm:max-w-xs">
+                {selectedPiece.name.split(':')[0]} [{Math.round(selectedPiece.rotation)}°]
               </span>
             ) : (
-              <span className="text-slate-500">Haz clic para seleccionar o arrastrar formas</span>
+              <span className="text-slate-500 hidden sm:inline text-[11px]">Haz clic para seleccionar formas</span>
             )}
             <span className="hidden lg:inline px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold">
               Paso: {moveMode}
@@ -1187,6 +1200,23 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
             <span className="hidden lg:inline px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px]">
               1M = {MODULE_PX}px
             </span>
+
+            {/* Workflow Pipeline Link: Matrix -> Motion */}
+            {onProceedToMotion && (
+              <button
+                id="btn-matrix-to-motion"
+                onClick={onProceedToMotion}
+                title="Transferir la composición actual a Inlumenai Motion (Paso 2 del ecosistema)"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-black font-extrabold text-[11px] shadow-lg shadow-cyan-500/25 active:scale-95 transition-all cursor-pointer ml-1 shrink-0"
+              >
+                <Film className="w-3.5 h-3.5 text-black" />
+                <span className="hidden sm:inline">Continuar en Motion</span>
+                <span className="sm:hidden">Motion</span>
+                <span className="text-[9px] bg-black/20 text-black px-1.5 py-0.5 rounded font-mono font-black">
+                  P2 ➔
+                </span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -1201,48 +1231,58 @@ export const HmaMatrixStudio: React.FC<HmaMatrixStudioProps> = ({
         onSelectActiveBox={setActiveBoxId}
       />
 
+      {/* Mobile Backdrop for Right Panel */}
       {isRightPanelOpen && (
-        <InspectorPanel
-          selectedPiece={selectedPiece}
-          pieces={pieces}
-          selectedPieceId={selectedPieceId}
-          onSelectPiece={(id) => setSelectedPieceId(id)}
-          onSelectAllPieces={handleSelectAllPieces}
-          onUpdatePiece={handleUpdatePiece}
-          onUpdateAllPieces={handleUpdateAllPieces}
-          onRotateGroup={handleRotateGroup}
-          onMoveGroup={handleMoveGroup}
-          onDuplicatePiece={handleDuplicatePiece}
-          onDeletePiece={handleDeletePiece}
-          onMoveLayer={handleMoveLayer}
-          colorLuz={colorLuz}
-          colorProfundo={colorProfundo}
-          onClose={() => setIsRightPanelOpen(false)}
-          moveStepMode={moveMode}
-          onChangeMoveStepMode={(mode) => {
-            const snapPx =
-              mode === 'free'
-                ? 1
-                : mode === '0.25M'
-                ? MODULE_PX / 4
-                : mode === '0.5M'
-                ? MODULE_PX / 2
-                : MODULE_PX;
-            setGridSettings((s) => ({
-              ...s,
-              moveStepMode: mode,
-              snapStep: snapPx,
-              snapToGrid: mode !== 'free'
-            }));
-          }}
-          showTechnicalGuides={gridSettings.showTechnicalGuides}
-          onToggleTechnicalGuides={() =>
-            setGridSettings((s) => ({
-              ...s,
-              showTechnicalGuides: !s.showTechnicalGuides
-            }))
-          }
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-30 md:hidden"
+          onClick={() => setIsRightPanelOpen(false)}
         />
+      )}
+
+      {isRightPanelOpen && (
+        <div className="fixed md:relative inset-y-0 right-0 z-40 md:z-auto h-full max-w-[88vw] sm:max-w-xs shadow-2xl md:shadow-none shrink-0">
+          <InspectorPanel
+            selectedPiece={selectedPiece}
+            pieces={pieces}
+            selectedPieceId={selectedPieceId}
+            onSelectPiece={(id) => setSelectedPieceId(id)}
+            onSelectAllPieces={handleSelectAllPieces}
+            onUpdatePiece={handleUpdatePiece}
+            onUpdateAllPieces={handleUpdateAllPieces}
+            onRotateGroup={handleRotateGroup}
+            onMoveGroup={handleMoveGroup}
+            onDuplicatePiece={handleDuplicatePiece}
+            onDeletePiece={handleDeletePiece}
+            onMoveLayer={handleMoveLayer}
+            colorLuz={colorLuz}
+            colorProfundo={colorProfundo}
+            onClose={() => setIsRightPanelOpen(false)}
+            moveStepMode={moveMode}
+            onChangeMoveStepMode={(mode) => {
+              const snapPx =
+                mode === 'free'
+                  ? 1
+                  : mode === '0.25M'
+                  ? MODULE_PX / 4
+                  : mode === '0.5M'
+                  ? MODULE_PX / 2
+                  : MODULE_PX;
+              setGridSettings((s) => ({
+                ...s,
+                moveStepMode: mode,
+                snapStep: snapPx,
+                snapToGrid: mode !== 'free'
+              }));
+            }}
+            showTechnicalGuides={gridSettings.showTechnicalGuides}
+            onToggleTechnicalGuides={() =>
+              setGridSettings((s) => ({
+                ...s,
+                showTechnicalGuides: !s.showTechnicalGuides
+              }))
+            }
+          />
+        </div>
       )}
     </div>
   );

@@ -17,9 +17,20 @@ export const SHAPES: Record<string, { path: string; width: number; height: numbe
 };
 
 export const PALETTES = {
-  luz: ['#06B6D4', '#3D80FD', '#A855F7', '#10B981', '#FFFFFF', '#11D7B6', '#E2E8F0'],
-  profundo: ['#081126', '#000000', '#1E3A8A', '#0F766E', '#4C1D95', '#064E3B', '#1E293B']
+  luz: [
+    '#3D80FD', '#AE7176', '#D96B43', '#052D63', '#0E8490', '#1D5B8F', 
+    '#7D77B0', '#C5A367', '#315629', '#75C962', '#11D7B6', '#D7BB11', '#FEFAE8'
+  ],
+  profundo: [
+    '#2D60C1', '#77454A', '#964222', '#031C3D', '#074349', '#1B3F67', 
+    '#514B7D', '#82600A', '#1B3315', '#4B893C', '#0A8570', '#8C7907', '#060C04'
+  ]
 };
+
+export const BRAND_COLORS = [
+  ...PALETTES.luz,
+  ...PALETTES.profundo
+];
 
 export const PRESETS = [
   'HMA Master', 'Alpha', 'Beta', 'Quantum', 'Cyber', 'Cloud', 'AI Core', 'Data', 'Energy', 'Security', 'Sync', 'Vision', 'Nexus'

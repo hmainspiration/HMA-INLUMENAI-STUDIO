@@ -528,8 +528,8 @@ export const HMA_PRESETS: HMAPreset[] = [
     cluster: 'Clúster 01 — Creación & Forma',
     description: 'Fundición tipográfica, caligrafía vectorial y ritmo modular estructurado.',
     colorLuz: '#AE7176',
-    colorProfundo: '#7A4F53',
-    pieces: getPresetType('#AE7176', '#7A4F53').map(mapShapePieceToHMAPiece)
+    colorProfundo: '#77454A',
+    pieces: getPresetType('#AE7176', '#77454A').map(mapShapePieceToHMAPiece)
   },
   // 4. HMA Visuals
   {
@@ -538,8 +538,8 @@ export const HMA_PRESETS: HMAPreset[] = [
     cluster: 'Clúster 01 — Creación & Forma',
     description: 'Comunicación visual, motion graphics e impacto cromático angular.',
     colorLuz: '#D96B43',
-    colorProfundo: '#994B2E',
-    pieces: getPresetVisuals('#D96B43', '#994B2E').map(mapShapePieceToHMAPiece)
+    colorProfundo: '#964222',
+    pieces: getPresetVisuals('#D96B43', '#964222').map(mapShapePieceToHMAPiece)
   },
   // 5. HMA Photography
   {
@@ -547,9 +547,9 @@ export const HMA_PRESETS: HMAPreset[] = [
     name: 'HMA PHOTOGRAPHY',
     cluster: 'Clúster 02 — Óptica & Sonido',
     description: 'Captura lumínica, encuadre óptico y fotografía de estudio con diafragma focal.',
-    colorLuz: '#11D7B6',
-    colorProfundo: '#0C9982',
-    pieces: getPresetPhotography('#11D7B6', '#0C9982').map(mapShapePieceToHMAPiece)
+    colorLuz: '#052D63',
+    colorProfundo: '#031C3D',
+    pieces: getPresetPhotography('#052D63', '#031C3D').map(mapShapePieceToHMAPiece)
   },
   // 6. HMA Music
   {
@@ -557,9 +557,9 @@ export const HMA_PRESETS: HMAPreset[] = [
     name: 'HMA MUSIC',
     cluster: 'Clúster 02 — Óptica & Sonido',
     description: 'Composición sonora, síntesis armónica y paisaje acústico modular.',
-    colorLuz: '#16A097',
-    colorProfundo: '#0F736C',
-    pieces: getPresetMusic('#16A097', '#0F736C').map(mapShapePieceToHMAPiece)
+    colorLuz: '#0E8490',
+    colorProfundo: '#074349',
+    pieces: getPresetMusic('#0E8490', '#074349').map(mapShapePieceToHMAPiece)
   },
   // 7. HMA Cinema
   {
@@ -567,9 +567,9 @@ export const HMA_PRESETS: HMAPreset[] = [
     name: 'HMA CINEMA',
     cluster: 'Clúster 02 — Óptica & Sonido',
     description: 'Narrativa cinematográfica, óptica anamórfica y etalonaje en encuadre continuo.',
-    colorLuz: '#2D60C1',
-    colorProfundo: '#1E4387',
-    pieces: getPresetCinema('#2D60C1', '#1E4387').map(mapShapePieceToHMAPiece)
+    colorLuz: '#1D5B8F',
+    colorProfundo: '#1B3F67',
+    pieces: getPresetCinema('#1D5B8F', '#1B3F67').map(mapShapePieceToHMAPiece)
   },
   // 8. HMA Temples
   {
@@ -577,9 +577,9 @@ export const HMA_PRESETS: HMAPreset[] = [
     name: 'HMA TEMPLES',
     cluster: 'Clúster 03 — Estructura & Pensamiento',
     description: 'Arquitectura sagrada, espacios de contemplación, columnas y proporción.',
-    colorLuz: '#7077B0',
-    colorProfundo: '#4E537B',
-    pieces: getPresetTemples('#7077B0', '#4E537B').map(mapShapePieceToHMAPiece)
+    colorLuz: '#7D77B0',
+    colorProfundo: '#514B7D',
+    pieces: getPresetTemples('#7D77B0', '#514B7D').map(mapShapePieceToHMAPiece)
   },
   // 9. HMA Publishing
   {
@@ -587,9 +587,9 @@ export const HMA_PRESETS: HMAPreset[] = [
     name: 'HMA PUBLISHING',
     cluster: 'Clúster 03 — Estructura & Pensamiento',
     description: 'Edición impresa, cuadernos de autor y publicaciones de arte y legado.',
-    colorLuz: '#D7BB11',
-    colorProfundo: '#96830C',
-    pieces: getPresetPublishing('#D7BB11', '#96830C').map(mapShapePieceToHMAPiece)
+    colorLuz: '#C5A367',
+    colorProfundo: '#82600A',
+    pieces: getPresetPublishing('#C5A367', '#82600A').map(mapShapePieceToHMAPiece)
   },
   // 10. HMA Transcendence
   {
@@ -598,8 +598,8 @@ export const HMA_PRESETS: HMAPreset[] = [
     cluster: 'Clúster 03 — Estructura & Pensamiento',
     description: 'Filosofía modular, consciencia de marca, cronología y trascendencia.',
     colorLuz: '#315629',
-    colorProfundo: '#213B1C',
-    pieces: getPresetTranscendence('#315629', '#213B1C').map(mapShapePieceToHMAPiece)
+    colorProfundo: '#1B3315',
+    pieces: getPresetTranscendence('#315629', '#1B3315').map(mapShapePieceToHMAPiece)
   },
   // 11. HMA Watermark
   {
@@ -608,8 +608,8 @@ export const HMA_PRESETS: HMAPreset[] = [
     cluster: 'Clúster 04 — Tecnología & Materia',
     description: 'Sello de autenticidad, trazabilidad y protección de activos vectoriales.',
     colorLuz: '#75C962',
-    colorProfundo: '#518C44',
-    pieces: getPresetWatermark('#75C962', '#518C44').map(mapShapePieceToHMAPiece)
+    colorProfundo: '#4B893C',
+    pieces: getPresetWatermark('#75C962', '#4B893C').map(mapShapePieceToHMAPiece)
   },
   // 12. HMA Software
   {
@@ -617,9 +617,9 @@ export const HMA_PRESETS: HMAPreset[] = [
     name: 'HMA SOFTWARE',
     cluster: 'Clúster 04 — Tecnología & Materia',
     description: 'Ingeniería algorítmica, herramientas creativas y frontend modular.',
-    colorLuz: '#2280AC',
-    colorProfundo: '#165A7A',
-    pieces: getPresetSoftware('#2280AC', '#165A7A').map(mapShapePieceToHMAPiece)
+    colorLuz: '#11D7B6',
+    colorProfundo: '#0A8570',
+    pieces: getPresetSoftware('#11D7B6', '#0A8570').map(mapShapePieceToHMAPiece)
   },
   // 13. HMA Print
   {
@@ -627,9 +627,9 @@ export const HMA_PRESETS: HMAPreset[] = [
     name: 'HMA PRINT',
     cluster: 'Clúster 04 — Tecnología & Materia',
     description: 'Impresión de alta fidelidad, serigrafía y acabados tangibles de producción.',
-    colorLuz: '#C99700',
-    colorProfundo: '#8C6900',
-    pieces: getPresetPrint('#C99700', '#8C6900').map(mapShapePieceToHMAPiece)
+    colorLuz: '#D7BB11',
+    colorProfundo: '#8C7907',
+    pieces: getPresetPrint('#D7BB11', '#8C7907').map(mapShapePieceToHMAPiece)
   },
   // Variantes Master Especiales
   {

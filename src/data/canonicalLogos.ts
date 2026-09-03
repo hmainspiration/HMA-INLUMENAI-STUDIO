@@ -266,7 +266,7 @@ export const INITIAL_DATA: LogoData[] = [
     serviceName: "HMA TYPE",
     clusterName: "Clúster 01 — Identidad & Arte",
     luzColor: "#AE7176",
-    profundoColor: "#7A4F53",
+    profundoColor: "#77454A",
     shapes: [
       {
         id: "forma-01",
@@ -275,7 +275,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(378.63),
         y: to1080(222.69),
         rotation: 20,
-        color: "#7A4F53",
+        color: "#77454A",
       },
       {
         id: "forma-02",
@@ -293,7 +293,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(245.5),
         y: to1080(262.25),
         rotation: 0,
-        color: "#7A4F53",
+        color: "#77454A",
       },
       {
         id: "forma-04",
@@ -302,7 +302,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(446.5),
         rotation: -90,
-        color: "#7A4F53",
+        color: "#77454A",
       },
       {
         id: "forma-05",
@@ -329,7 +329,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#7A4F53",
+        color: "#77454A",
       },
       {
         id: "forma-08",
@@ -338,7 +338,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#7A4F53",
+        color: "#77454A",
       },
       {
         id: "forma-09",
@@ -356,7 +356,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#7A4F53",
+        color: "#77454A",
       },
       {
         id: "forma-11",
@@ -365,7 +365,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#7A4F53",
+        color: "#77454A",
       },
       {
         id: "forma-10",
@@ -391,6 +391,8 @@ export const INITIAL_DATA: LogoData[] = [
     serviceId: "hma-print",
     serviceName: "HMA PRINT",
     clusterName: "Clúster 04 — Tecnología & Producción",
+    luzColor: "#D7BB11",
+    profundoColor: "#8C7907",
     shapes: [
       {
         id: "forma-01",
@@ -400,7 +402,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(346),
         rotation: 90,
-        color: "#C99700",
+        color: "#D7BB11",
       },
       {
         id: "forma-03",
@@ -410,7 +412,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(362.75),
         y: to1080(195.25),
         rotation: 0,
-        color: "#C99700",
+        color: "#D7BB11",
       },
       {
         id: "forma-04",
@@ -420,7 +422,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(446.5),
         rotation: -90,
-        color: "#8C6900",
+        color: "#8C7907",
       },
       {
         id: "forma-05",
@@ -430,7 +432,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(195.25),
         rotation: 0,
-        color: "#C99700",
+        color: "#D7BB11",
       },
       {
         id: "forma-06",
@@ -440,7 +442,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(111.5),
         rotation: 0,
-        color: "#C99700",
+        color: "#D7BB11",
       },
       {
         id: "forma-07",
@@ -450,7 +452,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#8C6900",
+        color: "#8C7907",
       },
       {
         id: "forma-08",
@@ -460,7 +462,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#8C6900",
+        color: "#8C7907",
       },
       {
         id: "forma-09",
@@ -470,7 +472,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(362.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#C99700",
+        color: "#D7BB11",
       },
       {
         id: "forma-11",
@@ -480,7 +482,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#8C6900",
+        color: "#8C7907",
       },
       {
         id: "forma-10",
@@ -490,7 +492,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(415.87),
         y: to1080(627.88),
         rotation: 45,
-        color: "#C99700",
+        color: "#D7BB11",
       },
       {
         id: "forma-12",
@@ -500,7 +502,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#8C6900",
+        color: "#8C7907",
       },
       {
         id: "forma-13",
@@ -510,7 +512,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(588.96),
         y: to1080(645.24),
         rotation: 20,
-        color: "#C99700",
+        color: "#D7BB11",
       },
       {
         id: "forma-02",
@@ -520,7 +522,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(245.5),
         rotation: 90,
-        color: "#8C6900",
+        color: "#8C7907",
       },
     ],
   },
@@ -528,6 +530,8 @@ export const INITIAL_DATA: LogoData[] = [
     serviceId: "hma-software",
     serviceName: "HMA SOFTWARE",
     clusterName: "Clúster 04 — Tecnología & Producción",
+    luzColor: "#11D7B6",
+    profundoColor: "#0A8570",
     shapes: [
       {
         id: "forma-01",
@@ -537,7 +541,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(534.31),
         y: to1080(182.56),
         rotation: -45,
-        color: "#2280AC",
+        color: "#11D7B6",
       },
       {
         id: "forma-02",
@@ -547,7 +551,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(534.31),
         y: to1080(375.44),
         rotation: 45,
-        color: "#165A7A",
+        color: "#0A8570",
       },
       {
         id: "forma-03",
@@ -557,7 +561,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(279),
         rotation: 0,
-        color: "#2280AC",
+        color: "#11D7B6",
       },
       {
         id: "forma-04",
@@ -567,7 +571,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(291.69),
         y: to1080(182.56),
         rotation: 45,
-        color: "#165A7A",
+        color: "#0A8570",
       },
       {
         id: "forma-05",
@@ -577,7 +581,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(291.69),
         y: to1080(375.44),
         rotation: -45,
-        color: "#2280AC",
+        color: "#11D7B6",
       },
       {
         id: "forma-06",
@@ -587,7 +591,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(664.25),
         y: to1080(446.5),
         rotation: 0,
-        color: "#2280AC",
+        color: "#11D7B6",
       },
       {
         id: "forma-07",
@@ -597,7 +601,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#165A7A",
+        color: "#0A8570",
       },
       {
         id: "forma-08",
@@ -607,7 +611,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#165A7A",
+        color: "#0A8570",
       },
       {
         id: "forma-09",
@@ -617,7 +621,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(362.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#2280AC",
+        color: "#11D7B6",
       },
       {
         id: "forma-11",
@@ -627,7 +631,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#165A7A",
+        color: "#0A8570",
       },
       {
         id: "forma-10",
@@ -637,7 +641,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(415.87),
         y: to1080(627.88),
         rotation: 45,
-        color: "#2280AC",
+        color: "#11D7B6",
       },
       {
         id: "forma-12",
@@ -647,7 +651,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#165A7A",
+        color: "#0A8570",
       },
       {
         id: "forma-13",
@@ -657,7 +661,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(588.96),
         y: to1080(645.24),
         rotation: 20,
-        color: "#2280AC",
+        color: "#11D7B6",
       },
     ],
   },
@@ -665,6 +669,8 @@ export const INITIAL_DATA: LogoData[] = [
     serviceId: "hma-watermark",
     serviceName: "HMA WATERMARK",
     clusterName: "Clúster 04 — Tecnología & Producción",
+    luzColor: "#75C962",
+    profundoColor: "#4B893C",
     shapes: [
       {
         id: "forma-01",
@@ -704,7 +710,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(161.75),
         rotation: 0,
-        color: "#518C44",
+        color: "#4B893C",
       },
       {
         id: "forma-05",
@@ -714,7 +720,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(329.25),
         rotation: 90,
-        color: "#518C44",
+        color: "#4B893C",
       },
       {
         id: "forma-06",
@@ -734,7 +740,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#518C44",
+        color: "#4B893C",
       },
       {
         id: "forma-08",
@@ -744,7 +750,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#518C44",
+        color: "#4B893C",
       },
       {
         id: "forma-09",
@@ -764,7 +770,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#518C44",
+        color: "#4B893C",
       },
       {
         id: "forma-12",
@@ -774,7 +780,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#518C44",
+        color: "#4B893C",
       },
       {
         id: "forma-13",
@@ -802,6 +808,8 @@ export const INITIAL_DATA: LogoData[] = [
     serviceId: "hma-transcendence",
     serviceName: "HMA TRANSCENDENCE",
     clusterName: "Clúster 03 — Fe, Palabra & Legado",
+    luzColor: "#315629",
+    profundoColor: "#1B3315",
     shapes: [
       {
         id: "forma-01",
@@ -841,7 +849,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(111.5),
         rotation: -90,
-        color: "#213B1C",
+        color: "#1B3315",
       },
       {
         id: "forma-05",
@@ -851,7 +859,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(496.75),
         y: to1080(446.5),
         rotation: 90,
-        color: "#213B1C",
+        color: "#1B3315",
       },
       {
         id: "forma-06",
@@ -871,7 +879,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#213B1C",
+        color: "#1B3315",
       },
       {
         id: "forma-08",
@@ -881,7 +889,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#213B1C",
+        color: "#1B3315",
       },
       {
         id: "forma-09",
@@ -901,7 +909,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#213B1C",
+        color: "#1B3315",
       },
       {
         id: "forma-10",
@@ -921,7 +929,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#213B1C",
+        color: "#1B3315",
       },
       {
         id: "forma-13",
@@ -939,6 +947,8 @@ export const INITIAL_DATA: LogoData[] = [
     serviceId: "hma-publishing",
     serviceName: "HMA PUBLISHING",
     clusterName: "Clúster 03 — Fe, Palabra & Legado",
+    luzColor: "#C5A367",
+    profundoColor: "#82600A",
     shapes: [
       {
         id: "forma-02",
@@ -948,7 +958,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(232.81),
         y: to1080(350.06),
         rotation: -45,
-        color: "#D7BB11",
+        color: "#C5A367",
       },
       {
         id: "forma-03",
@@ -958,7 +968,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(593.19),
         y: to1080(350.06),
         rotation: 45,
-        color: "#D7BB11",
+        color: "#C5A367",
       },
       {
         id: "forma-04",
@@ -968,7 +978,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(291.69),
         y: to1080(274.94),
         rotation: -45,
-        color: "#96830C",
+        color: "#82600A",
       },
       {
         id: "forma-05",
@@ -978,7 +988,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(534.31),
         y: to1080(274.94),
         rotation: 45,
-        color: "#96830C",
+        color: "#82600A",
       },
       {
         id: "forma-06",
@@ -988,7 +998,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(145),
         rotation: 90,
-        color: "#D7BB11",
+        color: "#C5A367",
       },
       {
         id: "forma-07",
@@ -998,7 +1008,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#96830C",
+        color: "#82600A",
       },
       {
         id: "forma-08",
@@ -1008,7 +1018,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#96830C",
+        color: "#82600A",
       },
       {
         id: "forma-09",
@@ -1018,7 +1028,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(362.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#D7BB11",
+        color: "#C5A367",
       },
       {
         id: "forma-11",
@@ -1028,7 +1038,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#96830C",
+        color: "#82600A",
       },
       {
         id: "forma-12",
@@ -1038,7 +1048,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#96830C",
+        color: "#82600A",
       },
       {
         id: "forma-13",
@@ -1048,7 +1058,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(588.96),
         y: to1080(645.24),
         rotation: 20,
-        color: "#D7BB11",
+        color: "#C5A367",
       },
       {
         id: "forma-10",
@@ -1058,7 +1068,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(415.87),
         y: to1080(627.88),
         rotation: 45,
-        color: "#D7BB11",
+        color: "#C5A367",
       },
       {
         id: "forma-01",
@@ -1068,7 +1078,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(446.5),
         rotation: 90,
-        color: "#D7BB11",
+        color: "#C5A367",
       },
     ],
   },
@@ -1076,6 +1086,8 @@ export const INITIAL_DATA: LogoData[] = [
     serviceId: "hma-temples",
     serviceName: "HMA TEMPLES",
     clusterName: "Clúster 03 — Fe, Palabra & Legado",
+    luzColor: "#7D77B0",
+    profundoColor: "#514B7D",
     shapes: [
       {
         id: "forma-01",
@@ -1085,7 +1097,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(346),
         rotation: 90,
-        color: "#7077B0",
+        color: "#7D77B0",
       },
       {
         id: "forma-02",
@@ -1095,7 +1107,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(212),
         y: to1080(446.5),
         rotation: -90,
-        color: "#7077B0",
+        color: "#7D77B0",
       },
       {
         id: "forma-03",
@@ -1105,7 +1117,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(614),
         y: to1080(446.5),
         rotation: 90,
-        color: "#7077B0",
+        color: "#7D77B0",
       },
       {
         id: "forma-04",
@@ -1115,7 +1127,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(446.5),
         rotation: 90,
-        color: "#4E537B",
+        color: "#514B7D",
       },
       {
         id: "forma-05",
@@ -1125,7 +1137,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(195.25),
         rotation: 0,
-        color: "#4E537B",
+        color: "#514B7D",
       },
       {
         id: "forma-06",
@@ -1135,7 +1147,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(94.75),
         rotation: 0,
-        color: "#7077B0",
+        color: "#7D77B0",
       },
       {
         id: "forma-07",
@@ -1145,7 +1157,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#4E537B",
+        color: "#514B7D",
       },
       {
         id: "forma-08",
@@ -1155,7 +1167,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#4E537B",
+        color: "#514B7D",
       },
       {
         id: "forma-09",
@@ -1165,7 +1177,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(362.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#7077B0",
+        color: "#7D77B0",
       },
       {
         id: "forma-11",
@@ -1175,7 +1187,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#4E537B",
+        color: "#514B7D",
       },
       {
         id: "forma-10",
@@ -1185,7 +1197,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(415.87),
         y: to1080(627.88),
         rotation: 45,
-        color: "#7077B0",
+        color: "#7D77B0",
       },
       {
         id: "forma-12",
@@ -1195,7 +1207,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#4E537B",
+        color: "#514B7D",
       },
       {
         id: "forma-13",
@@ -1205,7 +1217,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(588.96),
         y: to1080(645.24),
         rotation: 20,
-        color: "#7077B0",
+        color: "#7D77B0",
       },
     ],
   },
@@ -1213,6 +1225,8 @@ export const INITIAL_DATA: LogoData[] = [
     serviceId: "hma-cinema",
     serviceName: "HMA CINEMA",
     clusterName: "Clúster 02 — Audiovisual & Sonido",
+    luzColor: "#1D5B8F",
+    profundoColor: "#1B3F67",
     shapes: [
       {
         id: "forma-01",
@@ -1222,7 +1236,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(329.25),
         y: to1080(111.5),
         rotation: 90,
-        color: "#2D60C1",
+        color: "#1D5B8F",
       },
       {
         id: "forma-02",
@@ -1232,7 +1246,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(329.25),
         y: to1080(446.5),
         rotation: 90,
-        color: "#1E4387",
+        color: "#1B3F67",
       },
       {
         id: "forma-03",
@@ -1242,7 +1256,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(279),
         rotation: 0,
-        color: "#1E4387",
+        color: "#1B3F67",
       },
       {
         id: "forma-04",
@@ -1252,7 +1266,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.66),
         y: to1080(300.53),
         rotation: -50,
-        color: "#2D60C1",
+        color: "#1D5B8F",
       },
       {
         id: "forma-05",
@@ -1262,7 +1276,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(637.69),
         y: to1080(255.31),
         rotation: -135,
-        color: "#2D60C1",
+        color: "#1D5B8F",
       },
       {
         id: "forma-06",
@@ -1272,7 +1286,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(513.5),
         y: to1080(279),
         rotation: 0,
-        color: "#2D60C1",
+        color: "#1D5B8F",
       },
       {
         id: "forma-07",
@@ -1282,7 +1296,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#1E4387",
+        color: "#1B3F67",
       },
       {
         id: "forma-08",
@@ -1292,7 +1306,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#1E4387",
+        color: "#1B3F67",
       },
       {
         id: "forma-09",
@@ -1302,7 +1316,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(362.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#2D60C1",
+        color: "#1D5B8F",
       },
       {
         id: "forma-11",
@@ -1312,7 +1326,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#1E4387",
+        color: "#1B3F67",
       },
       {
         id: "forma-12",
@@ -1322,7 +1336,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#1E4387",
+        color: "#1B3F67",
       },
       {
         id: "forma-13",
@@ -1332,7 +1346,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(588.96),
         y: to1080(645.24),
         rotation: 20,
-        color: "#2D60C1",
+        color: "#1D5B8F",
       },
       {
         id: "forma-10",
@@ -1342,7 +1356,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(415.87),
         y: to1080(627.88),
         rotation: 45,
-        color: "#2D60C1",
+        color: "#1D5B8F",
       },
     ],
   },
@@ -1350,6 +1364,8 @@ export const INITIAL_DATA: LogoData[] = [
     serviceId: "hma-music",
     serviceName: "HMA MUSIC",
     clusterName: "Clúster 02 — Audiovisual & Sonido",
+    luzColor: "#0E8490",
+    profundoColor: "#074349",
     shapes: [
       {
         id: "forma-01",
@@ -1359,7 +1375,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(362.75),
         y: to1080(279),
         rotation: 0,
-        color: "#16A097",
+        color: "#0E8490",
       },
       {
         id: "forma-02",
@@ -1369,7 +1385,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(346),
         rotation: 0,
-        color: "#0F736C",
+        color: "#074349",
       },
       {
         id: "forma-03",
@@ -1379,7 +1395,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(346),
         rotation: 0,
-        color: "#16A097",
+        color: "#0E8490",
       },
       {
         id: "forma-04",
@@ -1389,7 +1405,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(396.25),
         rotation: 0,
-        color: "#0F736C",
+        color: "#074349",
       },
       {
         id: "forma-05",
@@ -1399,7 +1415,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(563.75),
         y: to1080(413),
         rotation: 0,
-        color: "#16A097",
+        color: "#0E8490",
       },
       {
         id: "forma-06",
@@ -1409,7 +1425,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(664.25),
         y: to1080(446.5),
         rotation: 0,
-        color: "#16A097",
+        color: "#0E8490",
       },
       {
         id: "forma-07",
@@ -1419,7 +1435,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#0F736C",
+        color: "#074349",
       },
       {
         id: "forma-08",
@@ -1429,7 +1445,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#0F736C",
+        color: "#074349",
       },
       {
         id: "forma-09",
@@ -1439,7 +1455,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(362.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#16A097",
+        color: "#0E8490",
       },
       {
         id: "forma-11",
@@ -1449,7 +1465,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#0F736C",
+        color: "#074349",
       },
       {
         id: "forma-12",
@@ -1459,7 +1475,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#0F736C",
+        color: "#074349",
       },
       {
         id: "forma-13",
@@ -1469,7 +1485,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(588.96),
         y: to1080(645.24),
         rotation: 20,
-        color: "#16A097",
+        color: "#0E8490",
       },
       {
         id: "forma-10",
@@ -1479,7 +1495,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(415.87),
         y: to1080(627.88),
         rotation: 45,
-        color: "#16A097",
+        color: "#0E8490",
       },
     ],
   },
@@ -1487,6 +1503,8 @@ export const INITIAL_DATA: LogoData[] = [
     serviceId: "hma-photography",
     serviceName: "HMA PHOTOGRAPHY",
     clusterName: "Clúster 02 — Audiovisual & Sonido",
+    luzColor: "#052D63",
+    profundoColor: "#031C3D",
     shapes: [
       {
         id: "forma-01",
@@ -1496,7 +1514,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(279),
         rotation: 90,
-        color: "#11D7B6",
+        color: "#052D63",
       },
       {
         id: "forma-02",
@@ -1506,7 +1524,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(496.75),
         y: to1080(446.5),
         rotation: 90,
-        color: "#11D7B6",
+        color: "#052D63",
       },
       {
         id: "forma-03",
@@ -1516,7 +1534,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(664.25),
         y: to1080(279),
         rotation: 0,
-        color: "#11D7B6",
+        color: "#052D63",
       },
       {
         id: "forma-04",
@@ -1526,7 +1544,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(279),
         rotation: 0,
-        color: "#0C9982",
+        color: "#031C3D",
       },
       {
         id: "forma-05",
@@ -1536,7 +1554,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(329.25),
         y: to1080(111.5),
         rotation: 90,
-        color: "#0C9982",
+        color: "#031C3D",
       },
       {
         id: "forma-06",
@@ -1546,7 +1564,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(563.75),
         y: to1080(195.25),
         rotation: 0,
-        color: "#11D7B6",
+        color: "#052D63",
       },
       {
         id: "forma-07",
@@ -1556,7 +1574,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#0C9982",
+        color: "#031C3D",
       },
       {
         id: "forma-08",
@@ -1566,7 +1584,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#0C9982",
+        color: "#031C3D",
       },
       {
         id: "forma-09",
@@ -1576,7 +1594,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(362.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#11D7B6",
+        color: "#052D63",
       },
       {
         id: "forma-11",
@@ -1586,7 +1604,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#0C9982",
+        color: "#031C3D",
       },
       {
         id: "forma-12",
@@ -1596,7 +1614,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#0C9982",
+        color: "#031C3D",
       },
       {
         id: "forma-13",
@@ -1606,7 +1624,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(588.96),
         y: to1080(645.24),
         rotation: 20,
-        color: "#11D7B6",
+        color: "#052D63",
       },
       {
         id: "forma-10",
@@ -1616,7 +1634,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(415.87),
         y: to1080(627.88),
         rotation: 45,
-        color: "#11D7B6",
+        color: "#052D63",
       },
     ],
   },
@@ -1624,6 +1642,8 @@ export const INITIAL_DATA: LogoData[] = [
     serviceId: "hma-visuals",
     serviceName: "HMA VISUALS",
     clusterName: "Clúster 01 — Identidad & Arte",
+    luzColor: "#D96B43",
+    profundoColor: "#964222",
     shapes: [
       {
         id: "forma-01",
@@ -1663,7 +1683,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(413),
         y: to1080(446.5),
         rotation: 90,
-        color: "#994B2E",
+        color: "#964222",
       },
       {
         id: "forma-05",
@@ -1673,7 +1693,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(441.82),
         y: to1080(271.34),
         rotation: 35,
-        color: "#994B2E",
+        color: "#964222",
       },
       {
         id: "forma-06",
@@ -1693,7 +1713,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(161.75),
         y: to1080(647.5),
         rotation: 0,
-        color: "#994B2E",
+        color: "#964222",
       },
       {
         id: "forma-08",
@@ -1703,7 +1723,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(262.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#994B2E",
+        color: "#964222",
       },
       {
         id: "forma-09",
@@ -1723,7 +1743,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(463.25),
         y: to1080(647.5),
         rotation: 0,
-        color: "#994B2E",
+        color: "#964222",
       },
       {
         id: "forma-12",
@@ -1733,7 +1753,7 @@ export const INITIAL_DATA: LogoData[] = [
         x: to1080(639.04),
         y: to1080(645.24),
         rotation: -20,
-        color: "#994B2E",
+        color: "#964222",
       },
       {
         id: "forma-13",

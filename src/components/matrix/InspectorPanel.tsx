@@ -166,7 +166,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   return (
     <aside className="w-[380px] border-l border-white/10 bg-[#0c162d]/95 backdrop-blur-md flex flex-col h-full overflow-hidden shrink-0 select-none">
       {/* HEADER */}
-      <div className="flex items-center justify-between p-3 border-b border-white/10 bg-[#081126]">
+      <div className="flex items-center justify-between p-3 border-b border-white/10 bg-[#060C04]">
         <div className="flex items-center gap-2 text-white font-bold text-sm tracking-wide">
           <Sliders className="w-4 h-4 text-cyan-400" />
           <span>Inspector de Formas</span>
@@ -206,7 +206,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
       </div>
 
       {/* Subheader: Expand/Collapse All and Global Snap Status */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-white/5 bg-[#081126]/60 text-[10px] font-mono text-slate-400">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-white/5 bg-[#060C04]/60 text-[10px] font-mono text-slate-400">
         <div className="flex items-center gap-2">
           <span>Menús Desplegables:</span>
           <button
@@ -1064,7 +1064,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
       </div>
 
       {/* FOOTER INVENTARIO */}
-      <div className="p-3 border-t border-white/10 bg-[#081126] flex items-center justify-between">
+      <div className="p-3 border-t border-white/10 bg-[#060C04] flex items-center justify-between">
         <div className="text-xs font-bold text-slate-300 flex flex-col font-mono">
           INVENTARIO DE FORMAS
           <span className="text-cyan-400">({pieces.length} PIEZAS ACTIVAS)</span>

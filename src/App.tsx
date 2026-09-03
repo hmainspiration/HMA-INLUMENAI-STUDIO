@@ -5,6 +5,7 @@
  */
 
 import React, { useState } from 'react';
+import { Layers, Film, Sparkles, HelpCircle } from 'lucide-react';
 import { AppToolMode, GridSettings, HMAPiece, PaletteMode, AnimatedLayer } from './types/hma';
 import {
   APP_VERSION,
@@ -414,7 +415,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#081126] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div 
+      className={`min-h-screen ${paletteMode === 'luz' ? 'bg-[#FEFAE8] text-slate-900' : 'bg-[#060C04] text-slate-100'} flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200 transition-colors duration-500`}
+    >
       {/* Universal Studio Header */}
       <Header
         activeTool={activeTool}
@@ -451,7 +454,7 @@ export default function App() {
       )}
 
       {/* Main Integrated Views */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+      <main className="flex-1 flex flex-col overflow-hidden relative pb-14 sm:pb-0">
         {/* Module 1: HMA Matrix */}
         {activeTool === 'matrix' && (
           <HmaMatrixStudio
@@ -467,6 +470,7 @@ export default function App() {
             activePresetName={activePreset.name}
             onLoadJson={handleLoadJson}
             onLoadSvg={handleLoadSvg}
+            onProceedToMotion={() => setActiveTool('motion')}
           />
         )}
 
@@ -489,6 +493,62 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Dedicated Mobile / Smartphone Bottom Navigation Bar (Ecosistema Continuo) */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#060C04]/95 border-t border-white/15 backdrop-blur-xl flex items-center justify-around py-1.5 px-2 shadow-2xl safe-area-pb">
+        <button
+          onClick={() => setActiveTool('matrix')}
+          className={`flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono transition-all ${
+            activeTool === 'matrix'
+              ? 'text-cyan-300 font-bold bg-cyan-950/60 border border-cyan-500/40'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <div className="relative">
+            <Layers className="w-4 h-4" />
+            <span className="absolute -top-1 -right-2 w-3 h-3 bg-cyan-500 text-black text-[8px] font-bold rounded-full flex items-center justify-center">1</span>
+          </div>
+          <span>Matriz</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTool('motion')}
+          className={`flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono transition-all ${
+            activeTool === 'motion'
+              ? 'text-blue-300 font-bold bg-blue-950/60 border border-blue-500/40'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <div className="relative">
+            <Film className="w-4 h-4" />
+            <span className="absolute -top-1 -right-2 w-3 h-3 bg-blue-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">2</span>
+          </div>
+          <span>Motion</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTool('canvas')}
+          className={`flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono transition-all ${
+            activeTool === 'canvas'
+              ? 'text-purple-300 font-bold bg-purple-950/60 border border-purple-500/40'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <div className="relative">
+            <Sparkles className="w-4 h-4" />
+            <span className="absolute -top-1 -right-2 w-3 h-3 bg-purple-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">3</span>
+          </div>
+          <span>Animation</span>
+        </button>
+
+        <button
+          onClick={() => setShowOrientationModal(true)}
+          className="flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono text-slate-400 hover:text-amber-300 transition-colors"
+        >
+          <HelpCircle className="w-4 h-4" />
+          <span>Guía</span>
+        </button>
+      </nav>
 
       {/* Interactive Orientation Guide Modal */}
       <OrientationModal

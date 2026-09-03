@@ -195,3 +195,46 @@ export interface ShapePiece {
   locked: boolean;
   zIndex?: number;
 }
+
+export type AppModule = 'matrix' | 'motion' | 'canvas';
+export type ThemePalette = 'luz' | 'profundo';
+
+export interface HmaPiece {
+  id: string;
+  typeId: string;
+  x: number;
+  y: number;
+  rotation: number;
+  scale: number;
+  color: string;
+  visible: boolean;
+  locked: boolean;
+  zIndex: number;
+}
+
+export interface VectorLayer {
+  id: string;
+  name: string;
+  svgCode: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  opacity: number;
+  blur: number;
+  blendMode: 'normal' | 'screen' | 'multiply' | 'overlay';
+  wireframe: boolean;
+  isPattern: boolean;
+  patternScale: number;
+  patternSpacing: number;
+  animationType: 'none' | 'float' | 'pulse' | 'spin';
+  animDuration: number;
+  animX: number;
+  animY: number;
+  animDelay: number;
+  visible: boolean;
+  locked: boolean;
+  exportable: boolean;
+  zIndex: number;
+}

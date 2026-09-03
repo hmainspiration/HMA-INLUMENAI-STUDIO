@@ -63,17 +63,17 @@ export const PieceToolbar: React.FC<PieceToolbarProps> = ({
     grid: boolean;
     movement: boolean;
     boxes: boolean;
-    basePieces: boolean;
-    upperPieces: boolean;
+    addShapes: boolean;
     layers: boolean;
   }>({
     grid: true,
-    movement: true,
-    boxes: true,
-    basePieces: true,
-    upperPieces: true,
+    movement: false,
+    boxes: false,
+    addShapes: true,
     layers: true
   });
+
+  const [shapeCategoryFilter, setShapeCategoryFilter] = useState<'all' | 'base' | 'upper'>('all');
 
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -84,8 +84,7 @@ export const PieceToolbar: React.FC<PieceToolbarProps> = ({
       grid: open,
       movement: open,
       boxes: open,
-      basePieces: open,
-      upperPieces: open,
+      addShapes: open,
       layers: open
     });
   };
@@ -94,6 +93,12 @@ export const PieceToolbar: React.FC<PieceToolbarProps> = ({
 
   const baseGeometries = PIECE_GEOMETRIES.filter((g) => g.category === 'base');
   const upperGeometries = PIECE_GEOMETRIES.filter((g) => g.category === 'upper');
+
+  const filteredGeometries = PIECE_GEOMETRIES.filter((g) => {
+    if (shapeCategoryFilter === 'base') return g.category === 'base';
+    if (shapeCategoryFilter === 'upper') return g.category === 'upper';
+    return true;
+  });
 
   const moveMode = gridSettings.moveStepMode || '1.0M';
 
@@ -116,7 +121,7 @@ export const PieceToolbar: React.FC<PieceToolbarProps> = ({
   };
 
   return (
-    <aside className="w-80 border-r border-white/10 bg-[#081126]/95 backdrop-blur-md flex flex-col h-[calc(100vh-4rem)] overflow-hidden select-none transition-all duration-300 relative shrink-0">
+    <aside className="w-80 border-r border-white/10 bg-[#060C04]/95 backdrop-blur-md flex flex-col h-[calc(100vh-4rem)] overflow-hidden select-none transition-all duration-300 relative shrink-0">
       {/* Top Header with Expand/Collapse All */}
       <div className="p-3 border-b border-white/10 bg-slate-900/70 space-y-2">
         <div className="flex items-center justify-between gap-1.5">
@@ -376,75 +381,22 @@ export const PieceToolbar: React.FC<PieceToolbarProps> = ({
         </div>
 
         {/* ========================================================================= */}
-        {/* SECTION 4: 7 Piezas Inferiores Base (Desplegable) */}
+        {/* SECTION 4: Opción Unificada: Añadir Formas (13 Formas Paramétricas)       */}
         {/* ========================================================================= */}
-        <div className="p-3">
+        <div className="p-3 bg-slate-900/30">
           <button
-            onClick={() => toggleSection('basePieces')}
-            className="w-full flex items-center justify-between text-xs font-mono uppercase text-slate-300 hover:text-cyan-300 font-bold transition-colors pb-1"
+            onClick={() => toggleSection('addShapes')}
+            className="w-full flex items-center justify-between text-xs font-mono uppercase text-slate-200 hover:text-cyan-300 font-bold transition-colors pb-1"
           >
             <span className="flex items-center gap-1.5">
-              <Compass className="w-3.5 h-3.5 text-blue-400" />
-              7 Piezas Base (H-M-A)
+              <Plus className="w-3.5 h-3.5 text-cyan-400" />
+              Añadir Formas
             </span>
             <div className="flex items-center gap-1.5">
-              <span className="text-[9px] text-blue-400 font-mono">F-07..13</span>
-              {openSections.basePieces ? (
-                <ChevronDown className="w-3.5 h-3.5 text-blue-400" />
-              ) : (
-                <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-              )}
-            </div>
-          </button>
-
-          {openSections.basePieces && (
-            <div className="grid grid-cols-2 gap-2 mt-2.5 pt-1 animate-fadeIn">
-              {baseGeometries.map((geom) => (
-                <button
-                  key={geom.type}
-                  onClick={() => onAddPiece(geom.type)}
-                  className="p-2 rounded-lg bg-slate-900/60 hover:bg-blue-900/30 border border-white/5 hover:border-blue-500/40 text-left transition-all group flex items-center gap-2"
-                >
-                  <svg className="w-7 h-7 shrink-0 text-blue-400" viewBox="-35 -35 70 70">
-                    <path
-                      d={getShapeSvgPath(
-                        geom.type,
-                        geom.defaultWidthM * 24,
-                        geom.defaultHeightM * 24
-                      )}
-                      fill="currentColor"
-                      opacity="0.8"
-                    />
-                  </svg>
-                  <div className="truncate">
-                    <div className="text-[11px] font-mono text-slate-200 group-hover:text-blue-300 truncate font-semibold">
-                      {geom.name.split(':')[0]}
-                    </div>
-                    <div className="text-[9px] font-mono text-slate-500">
-                      {geom.defaultWidthM}x{geom.defaultHeightM}M
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ========================================================================= */}
-        {/* SECTION 5: 6 Piezas Superiores Complementarias (Desplegable) */}
-        {/* ========================================================================= */}
-        <div className="p-3">
-          <button
-            onClick={() => toggleSection('upperPieces')}
-            className="w-full flex items-center justify-between text-xs font-mono uppercase text-slate-300 hover:text-cyan-300 font-bold transition-colors pb-1"
-          >
-            <span className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              6 Piezas Superiores
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[9px] text-cyan-400 font-mono">F-01..06</span>
-              {openSections.upperPieces ? (
+              <span className="text-[10px] text-cyan-300 font-mono font-bold bg-cyan-500/15 px-1.5 py-0.5 rounded border border-cyan-500/30">
+                13 Formas
+              </span>
+              {openSections.addShapes ? (
                 <ChevronDown className="w-3.5 h-3.5 text-cyan-400" />
               ) : (
                 <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
@@ -452,35 +404,76 @@ export const PieceToolbar: React.FC<PieceToolbarProps> = ({
             </div>
           </button>
 
-          {openSections.upperPieces && (
-            <div className="grid grid-cols-2 gap-2 mt-2.5 pt-1 animate-fadeIn">
-              {upperGeometries.map((geom) => (
-                <button
-                  key={geom.type}
-                  onClick={() => onAddPiece(geom.type)}
-                  className="p-2 rounded-lg bg-slate-900/60 hover:bg-cyan-900/30 border border-white/5 hover:border-cyan-500/40 text-left transition-all group flex items-center gap-2"
-                >
-                  <svg className="w-7 h-7 shrink-0 text-cyan-400" viewBox="-35 -35 70 70">
-                    <path
-                      d={getShapeSvgPath(
-                        geom.type,
-                        geom.defaultWidthM * 24,
-                        geom.defaultHeightM * 24
-                      )}
-                      fill="currentColor"
-                      opacity="0.8"
-                    />
-                  </svg>
-                  <div className="truncate">
-                    <div className="text-[11px] font-mono text-slate-200 group-hover:text-cyan-300 truncate font-semibold">
-                      {geom.name.split(':')[0]}
-                    </div>
-                    <div className="text-[9px] font-mono text-slate-500">
-                      {geom.defaultWidthM}x{geom.defaultHeightM}M
-                    </div>
-                  </div>
-                </button>
-              ))}
+          {openSections.addShapes && (
+            <div className="mt-2.5 space-y-2 pt-1 animate-fadeIn">
+              {/* Filtro por Categoría: Todas (13) | Base (7) | Superiores (6) */}
+              <div className="flex items-center gap-1 bg-black/40 p-1 rounded-lg border border-white/10 text-[10px] font-mono">
+                {(
+                  [
+                    { id: 'all', label: 'Todas', count: PIECE_GEOMETRIES.length },
+                    { id: 'base', label: 'Base', count: baseGeometries.length },
+                    { id: 'upper', label: 'Superiores', count: upperGeometries.length }
+                  ] as const
+                ).map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setShapeCategoryFilter(cat.id)}
+                    className={`flex-1 py-1 px-1 rounded transition-colors text-center ${
+                      shapeCategoryFilter === cat.id
+                        ? 'bg-cyan-500 text-black font-bold shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {cat.label} ({cat.count})
+                  </button>
+                ))}
+              </div>
+
+              {/* Grid compacto de Formas */}
+              <div className="grid grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+                {filteredGeometries.map((geom) => {
+                  const isBase = geom.category === 'base';
+                  const index = PIECE_GEOMETRIES.findIndex((g) => g.type === geom.type);
+                  const shapeCode = `F-${(index + 1).toString().padStart(2, '0')}`;
+                  return (
+                    <button
+                      key={geom.type}
+                      onClick={() => onAddPiece(geom.type)}
+                      title={`Añadir ${geom.name} (${geom.defaultWidthM}x{geom.defaultHeightM}M)`}
+                      className={`p-1.5 rounded-lg border text-left transition-all group flex items-center gap-2 ${
+                        isBase
+                          ? 'bg-slate-900/60 hover:bg-blue-900/30 border-white/5 hover:border-blue-500/40'
+                          : 'bg-slate-900/60 hover:bg-cyan-900/30 border-white/5 hover:border-cyan-500/40'
+                      }`}
+                    >
+                      <svg
+                        className={`w-6 h-6 shrink-0 ${isBase ? 'text-blue-400' : 'text-cyan-400'} group-hover:scale-110 transition-transform`}
+                        viewBox="-35 -35 70 70"
+                      >
+                        <path
+                          d={getShapeSvgPath(
+                            geom.type,
+                            geom.defaultWidthM * 24,
+                            geom.defaultHeightM * 24
+                          )}
+                          fill="currentColor"
+                          opacity="0.85"
+                        />
+                      </svg>
+                      <div className="truncate min-w-0">
+                        <div className="text-[10px] font-mono text-slate-200 group-hover:text-cyan-300 truncate font-semibold">
+                          {geom.name.split(':')[0]}
+                        </div>
+                        <div className="text-[8px] font-mono text-slate-400 flex items-center gap-1">
+                          <span className={isBase ? 'text-blue-400' : 'text-cyan-400'}>{shapeCode}</span>
+                          <span>•</span>
+                          <span>{geom.defaultWidthM}x{geom.defaultHeightM}M</span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>

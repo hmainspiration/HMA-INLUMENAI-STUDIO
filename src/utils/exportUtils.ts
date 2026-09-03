@@ -28,7 +28,7 @@ export function generateCleanSvg(
   pieces: HMAPiece[],
   viewSize = 800,
   includeBackground = false,
-  bgColor = '#081126'
+  bgColor = '#060C04'
 ): string {
   const visiblePieces = pieces.filter((p) => p.visible);
   
@@ -154,7 +154,7 @@ ${piecesSvg}
 
   <!-- Bloque de Metadatos Técnico -->
   <g id="blueprint-metadata" transform="translate(${-half + 24}, ${half - 120})">
-    <rect width="360" height="95" rx="6" fill="#081126" stroke="#1e293b" stroke-width="1.5" />
+    <rect width="360" height="95" rx="6" fill="#060C04" stroke="#1e293b" stroke-width="1.5" />
     <text x="16" y="24" fill="#06B6D4" font-size="14" font-weight="bold">HMA MATRIX STUDIO — BLUEPRINT TÉCNICO</text>
     <text x="16" y="44" fill="#94a3b8" font-size="11">PRESET: ${activePresetName.toUpperCase()} | VERSIÓN: ${APP_VERSION}</text>
     <text x="16" y="62" fill="#64748b" font-size="10">MÓDULO BASE: 1M = ${MODULE_PX}px | SUBRETÍCULA: 0.5M = 33.5px</text>
@@ -187,7 +187,7 @@ export async function exportHighResPng(
     }
 
     if (!transparent) {
-      ctx.fillStyle = '#081126';
+      ctx.fillStyle = '#060C04';
       ctx.fillRect(0, 0, width, height);
     }
 
@@ -254,7 +254,7 @@ export function generateAutonomousAnimatedHtml(
   layers: AnimatedLayer[],
   aspectRatio: '16:9' | '9:16' | '21:9' = '16:9',
   title = 'MOTION HMA MATRIX - Canvas Animado',
-  canvasBgColor = '#081126'
+  canvasBgColor = '#060C04'
 ): string {
   let width = 1920;
   let height = 1080;

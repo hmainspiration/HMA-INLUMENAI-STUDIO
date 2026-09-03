@@ -36,7 +36,7 @@ export const OrientationModal: React.FC<OrientationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto select-none">
-      <div className="w-full max-w-3xl rounded-2xl bg-[#081126] border border-cyan-500/30 shadow-2xl shadow-cyan-500/10 p-6 space-y-6 max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-3xl rounded-2xl bg-[#060C04] border border-cyan-500/30 shadow-2xl shadow-cyan-500/10 p-6 space-y-6 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">

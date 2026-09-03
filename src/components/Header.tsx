@@ -119,7 +119,7 @@ export const Header: React.FC<HeaderProps> = ({
   });
 
   return (
-    <header className="h-16 border-b border-white/10 bg-[#081126]/90 backdrop-blur-md sticky top-0 z-50 px-4 flex items-center justify-between gap-3 select-none">
+    <header className="h-16 border-b border-white/10 bg-[#060C04]/90 backdrop-blur-md sticky top-0 z-50 px-4 flex items-center justify-between gap-3 select-none">
       {/* Brand & Version Badge */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2.5">
@@ -169,7 +169,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {presetDropdownOpen && (
-            <div className="absolute left-0 mt-2 w-84 max-h-[480px] overflow-hidden rounded-xl bg-[#081126] border border-white/15 shadow-2xl z-50 backdrop-blur-xl flex flex-col animate-fadeIn">
+            <div className="absolute left-0 mt-2 w-84 max-h-[480px] overflow-hidden rounded-xl bg-[#060C04] border border-white/15 shadow-2xl z-50 backdrop-blur-xl flex flex-col animate-fadeIn">
               {/* Header & Search */}
               <div className="p-3 border-b border-white/10 bg-slate-900/60 space-y-2">
                 <div className="flex items-center justify-between text-[11px] font-mono text-cyan-300 font-bold uppercase">
@@ -261,65 +261,81 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           id="btn-palette-toggle"
           onClick={onTogglePalette}
-          title={`Cambiar a paleta ${paletteMode === 'luz' ? 'Profunda' : 'Luz'}`}
+          title={`Cambiar a ${paletteMode === 'luz' ? 'Fondo Oscuro Predeterminado' : 'Fondo Claro Predeterminado'}`}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-xs font-mono text-slate-200 border border-white/10 transition-colors shadow-sm"
         >
           {paletteMode === 'luz' ? (
             <>
               <Sun className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline text-cyan-300 font-semibold">Luz</span>
+              <span className="hidden sm:inline text-amber-100 font-semibold truncate max-w-[150px]">Fondo Claro Predeterminado</span>
             </>
           ) : (
             <>
               <Moon className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="hidden sm:inline text-indigo-300 font-semibold">Profundo</span>
+              <span className="hidden sm:inline text-indigo-200 font-semibold truncate max-w-[150px]">Fondo Oscuro Predeterminado</span>
             </>
           )}
         </button>
       </div>
 
-      {/* Tool Navigation Switcher Tabs */}
-      <nav className="flex items-center bg-black/40 p-1 rounded-xl border border-white/10 shadow-inner">
+      {/* Tool Navigation Switcher Tabs (Ecosistema Continuo: Matrix ➔ Motion ➔ Animation) */}
+      <nav className="hidden sm:flex items-center bg-black/50 p-1 rounded-xl border border-white/10 shadow-inner">
         <button
           id="tab-tool-matrix"
           onClick={() => setActiveTool('matrix')}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
             activeTool === 'matrix'
-              ? 'bg-cyan-500 text-black shadow-md shadow-cyan-500/30'
+              ? 'bg-cyan-500 text-black shadow-md shadow-cyan-500/30 font-bold'
               : 'text-slate-400 hover:text-white hover:bg-white/5'
           }`}
         >
+          <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-mono font-bold ${
+            activeTool === 'matrix' ? 'bg-black/25 text-black' : 'bg-slate-800 text-slate-400'
+          }`}>
+            1
+          </span>
           <Layers className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">1. Matrix</span>
-          <span className="md:hidden">Matrix</span>
+          <span>Matrix</span>
         </button>
+
+        <span className="text-slate-600 px-1 font-mono text-xs select-none">➔</span>
 
         <button
           id="tab-tool-motion"
           onClick={() => setActiveTool('motion')}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
             activeTool === 'motion'
-              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 font-bold'
               : 'text-slate-400 hover:text-white hover:bg-white/5'
           }`}
         >
+          <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-mono font-bold ${
+            activeTool === 'motion' ? 'bg-white/25 text-white' : 'bg-slate-800 text-slate-400'
+          }`}>
+            2
+          </span>
           <Film className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">2. Motion</span>
-          <span className="md:hidden">Motion</span>
+          <span>Motion</span>
         </button>
+
+        <span className="text-slate-600 px-1 font-mono text-xs select-none">➔</span>
 
         <button
           id="tab-tool-canvas"
           onClick={() => setActiveTool('canvas')}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
             activeTool === 'canvas'
-              ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30'
+              ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30 font-bold'
               : 'text-slate-400 hover:text-white hover:bg-white/5'
           }`}
         >
+          <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-mono font-bold ${
+            activeTool === 'canvas' ? 'bg-white/25 text-white' : 'bg-slate-800 text-slate-400'
+          }`}>
+            3
+          </span>
           <Sparkles className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">3. Animation</span>
-          <span className="md:hidden">Canvas</span>
+          <span>Animation</span>
         </button>
       </nav>
 
@@ -338,7 +354,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {importMenuOpen && (
-            <div className="absolute right-0 mt-2 w-64 rounded-xl bg-[#081126] border border-white/15 shadow-2xl p-2 z-50 backdrop-blur-xl animate-fadeIn">
+            <div className="absolute right-0 mt-2 w-64 rounded-xl bg-[#060C04] border border-white/15 shadow-2xl p-2 z-50 backdrop-blur-xl animate-fadeIn">
               <div className="px-2 py-1 text-[10px] font-mono uppercase text-slate-400">
                 Importación de Archivos
               </div>
@@ -395,7 +411,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {exportOpen && (
-            <div className="absolute right-0 mt-2 w-68 rounded-xl bg-[#081126] border border-white/15 shadow-2xl p-2 z-50 backdrop-blur-xl animate-fadeIn">
+            <div className="absolute right-0 mt-2 w-68 rounded-xl bg-[#060C04] border border-white/15 shadow-2xl p-2 z-50 backdrop-blur-xl animate-fadeIn">
               <div className="px-2 py-1 text-[10px] font-mono uppercase text-slate-400">
                 Formatos de Producción
               </div>

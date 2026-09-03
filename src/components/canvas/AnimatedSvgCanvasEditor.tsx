@@ -58,7 +58,7 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState<boolean>(true);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState<boolean>(true);
-  const [canvasBgColor, setCanvasBgColor] = useState<string>('#000424');
+  const [canvasBgColor, setCanvasBgColor] = useState<string>('#060C04');
 
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [recordingSeconds, setRecordingSeconds] = useState<number>(0);
@@ -414,7 +414,7 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
 
         {/* Minimal Floating HUD for Cinema Mode - Hidden until hover to allow clean recording */}
         <div className="absolute bottom-0 left-0 w-full h-40 flex items-end justify-center pb-8 z-[10000] opacity-0 hover:opacity-100 transition-opacity duration-300">
-          <div className="flex items-center gap-4 px-6 py-3 rounded-full bg-[#081126]/90 border border-white/10 shadow-2xl backdrop-blur-xl">
+          <div className="flex items-center gap-4 px-6 py-3 rounded-full bg-[#060C04]/90 border border-white/10 shadow-2xl backdrop-blur-xl">
             {isRecording ? (
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-red-400 font-mono text-sm font-bold animate-pulse">
@@ -460,9 +460,17 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
 
   return (
     <div className="flex flex-1 h-[calc(100vh-4rem)] overflow-hidden bg-[#040915] select-none relative">
+      {/* Mobile Backdrop for Left Panel */}
+      {isLeftPanelOpen && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-30 md:hidden"
+          onClick={() => setIsLeftPanelOpen(false)}
+        />
+      )}
+
       {/* Left Layer Manager Panel */}
       {isLeftPanelOpen && (
-        <aside className="w-80 border-r border-white/10 bg-[#081126]/95 backdrop-blur-md flex flex-col justify-between overflow-hidden shrink-0">
+        <aside className="fixed md:relative inset-y-0 left-0 z-40 md:z-auto w-80 max-w-[88vw] sm:max-w-xs border-r border-white/10 bg-[#060C04]/95 backdrop-blur-md flex flex-col justify-between overflow-hidden shrink-0 shadow-2xl md:shadow-none">
           {/* Top Viewport & Add Controls */}
           <div className="p-3 border-b border-white/10 space-y-3 bg-slate-900/60">
             <div className="flex items-center justify-between">
@@ -739,7 +747,7 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
           <button
             onClick={() => setIsLeftPanelOpen(true)}
             title="Mostrar panel de capas y exportación"
-            className="absolute top-4 left-4 z-30 flex items-center gap-2 px-3 py-2 rounded-xl bg-[#081126]/95 border border-cyan-500/40 text-cyan-300 hover:text-white hover:bg-cyan-950/80 shadow-2xl backdrop-blur-md transition-all text-xs font-mono font-bold group animate-fadeIn"
+            className="absolute top-4 left-4 z-30 flex items-center gap-2 px-3 py-2 rounded-xl bg-[#060C04]/95 border border-cyan-500/40 text-cyan-300 hover:text-white hover:bg-cyan-950/80 shadow-2xl backdrop-blur-md transition-all text-xs font-mono font-bold group animate-fadeIn"
           >
             <PanelLeftOpen className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
             <span>Capas ({layers.length})</span>
@@ -747,7 +755,7 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
         )}
 
         {/* Floating Stage Controls (Zoom, Fullscreen Toggle) */}
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-[#081126]/90 border border-white/10 p-1.5 rounded-xl shadow-xl backdrop-blur-md">
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-[#060C04]/90 border border-white/10 p-1.5 rounded-xl shadow-xl backdrop-blur-md">
           <button
             onClick={() => setIsLeftPanelOpen((prev) => !prev)}
             title={isLeftPanelOpen ? "Ocultar panel de capas" : "Mostrar panel de capas"}
@@ -895,9 +903,17 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
         </div>
       </main>
 
+      {/* Mobile Backdrop for Right Panel */}
+      {selectedLayer && isRightPanelOpen && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-30 md:hidden"
+          onClick={() => setIsRightPanelOpen(false)}
+        />
+      )}
+
       {/* Right Physics & Layer Inspector */}
       {selectedLayer && isRightPanelOpen && (
-        <aside className="w-84 border-l border-white/10 bg-[#081126]/95 backdrop-blur-md p-4 flex flex-col h-[calc(100vh-4rem)] overflow-y-auto select-none space-y-4 shrink-0">
+        <aside className="fixed md:relative inset-y-0 right-0 z-40 md:z-auto w-84 max-w-[88vw] sm:max-w-xs border-l border-white/10 bg-[#060C04]/95 backdrop-blur-md p-4 flex flex-col h-[calc(100vh-4rem)] overflow-y-auto select-none space-y-4 shrink-0 shadow-2xl md:shadow-none">
           <div className="pb-3 border-b border-white/10 flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono uppercase text-purple-400 font-bold">
@@ -1318,13 +1334,22 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
                     onChange={(e) => handleUpdateLayer({ color: e.target.value })}
                     className="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0"
                   />
-                  <div className="flex flex-1 gap-1">
-                    {['#11D7B6', '#3D80FD', '#F9F871', '#FF9671', '#ffffff'].map(c => (
+                  <div className="flex flex-1 gap-1 flex-wrap">
+                    {[
+                      '#FEFAE8', '#060C04', // Backgrounds
+                      '#3D80FD', '#2D60C1', '#AE7176', '#77454A',
+                      '#D96B43', '#964222', '#052D63', '#031C3D',
+                      '#0E8490', '#074349', '#1D5B8F', '#1B3F67',
+                      '#7D77B0', '#514B7D', '#C5A367', '#82600A',
+                      '#315629', '#1B3315', '#75C962', '#4B893C',
+                      '#11D7B6', '#0A8570', '#D7BB11', '#8C7907'
+                    ].map(c => (
                       <button
                         key={c}
                         onClick={() => handleUpdateLayer({ color: c })}
-                        className="w-4 h-4 rounded-full border border-white/20"
+                        className="w-4 h-4 rounded-full border border-white/20 hover:scale-110 transition-transform"
                         style={{ backgroundColor: c }}
+                        title={c}
                       />
                     ))}
                   </div>
@@ -1363,7 +1388,7 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
       {/* Paste SVG Raw Code Modal */}
       {showPasteModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-[#081126] border border-white/15 p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-lg rounded-2xl bg-[#060C04] border border-white/15 p-6 shadow-2xl space-y-4">
             <h3 className="text-base font-bold text-white">Pegar Código XML SVG</h3>
             <div>
               <label className="text-xs font-mono text-slate-400 block mb-1">
