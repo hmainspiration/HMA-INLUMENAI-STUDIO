@@ -9,7 +9,7 @@
  * 4. Metamorfosis Vectorial Verificada: Isotipo Madre y los 12 Servicios se despliegan con orientación vertical y rotaciones angulares exactas.
  */
 
-import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useRef, useState, useLayoutEffect, useMemo } from 'react';
 import gsap from 'gsap';
 import {
   Play,
@@ -43,9 +43,9 @@ import { cn } from '../../lib/utils';
 
 interface InlumenaiMotionProps {
   currentPieces: HMAPiece[];
+  customLogos?: LogoData[];
   paletteMode: PaletteMode;
   onSendToCanvas: (svgCode: string, name: string, motionParams?: Partial<AnimatedLayer>) => void;
-  onBackToMatrix: () => void;
 }
 
 const TARGET_CENTER = 540;
@@ -78,9 +78,9 @@ function calculateClockPositions(shapes: Shape[]) {
 
 export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
   currentPieces,
+  customLogos = [],
   paletteMode,
-  onSendToCanvas,
-  onBackToMatrix
+  onSendToCanvas
 }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
@@ -98,7 +98,21 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  const currentLogo = INITIAL_DATA[activeLogoIndex % INITIAL_DATA.length];
+  const ALL_DATA = [...INITIAL_DATA, ...customLogos];
+  const currentLogo = ALL_DATA[activeLogoIndex % ALL_DATA.length];
+
+  // Get all unique shape IDs across ALL_DATA to ensure DOM nodes exist for GSAP
+  const allUniqueShapes = useMemo(() => {
+    const shapeMap = new Map<string, Shape>();
+    ALL_DATA.forEach(logo => {
+      logo.shapes.forEach(shape => {
+        if (!shapeMap.has(shape.id)) {
+          shapeMap.set(shape.id, shape);
+        }
+      });
+    });
+    return Array.from(shapeMap.values());
+  }, [ALL_DATA]);
 
   // Helper to convert canonical Shape into HMAPiece for export or canvas transfer
   const getHMAPiecesFromShape = (shapes: Shape[]): HMAPiece[] => {
@@ -131,7 +145,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
       gsap.set('.clock-guides-main', { opacity: showTechnicalGuides ? 0.6 : 0 });
 
       // Identify shapes of first logo
-      const baseShapes = INITIAL_DATA[0].shapes;
+      const baseShapes = allUniqueShapes;
       baseShapes.forEach((shape) => {
         gsap.set(`.g-${shape.id}`, {
           x: TARGET_CENTER,
@@ -165,7 +179,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
       timelineRef.current = tl;
       tl.timeScale(playbackSpeed);
 
-      const logosToAnimate = isLoopMode ? INITIAL_DATA : [currentLogo];
+      const logosToAnimate = isLoopMode ? ALL_DATA : [currentLogo];
 
       logosToAnimate.forEach((st, idx) => {
         const label = `state_${st.serviceId}_${idx}`;
@@ -175,7 +189,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
         // 1. FORMAR RELOJ
         tl.addLabel(`${label}_clock`);
         tl.call(() => {
-          const globalIdx = INITIAL_DATA.findIndex((s) => s.serviceId === st.serviceId);
+          const globalIdx = ALL_DATA.findIndex((s) => s.serviceId === st.serviceId);
           if (globalIdx !== -1) setActiveLogoIndex(globalIdx);
           setCurrentPhaseName(`1. Reloj Análogo: Dispersión 12 Horas + Centro [${st.serviceName}]`);
 
@@ -200,7 +214,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
         tl.to(
           '.clock-guides-main',
           { opacity: showTechnicalGuides ? 0.7 : 0, duration: 0.35 },
-          '<'
+          `${label}_clock`
         );
 
         sortedShapes.forEach((shape) => {
@@ -222,7 +236,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
               duration: 0.35,
               ease: 'power2.out'
             },
-            '<'
+            `${label}_clock`
           );
           tl.to(
             `.g-${shape.id}`,
@@ -233,7 +247,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
               duration: 1.0,
               ease: 'power3.inOut'
             },
-            '<0.015'
+            `${label}_clock+=0.015`
           );
         });
 
@@ -242,7 +256,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
         // 2. METAMORFOSIS HACIA ISOTIPO
         tl.addLabel(`${label}_morph`);
         tl.call(() => setCurrentPhaseName(`2. Metamorfosis Vectorial → ${st.serviceName} (${st.clusterName})`));
-        tl.to('.clock-guides-main', { opacity: 0.15, duration: 0.4 }, '<');
+        tl.to('.clock-guides-main', { opacity: 0.15, duration: 0.4 }, `${label}_morph`);
 
         st.shapes.forEach((shape) => {
           tl.to(
@@ -285,7 +299,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
         tl.to('.clock-guides-main', {
           opacity: showTechnicalGuides ? 0.7 : 0,
           duration: 0.3
-        });
+        }, `${label}_return`);
 
         sortedShapes.forEach((shape) => {
           const target = clockPos[shape.id];
@@ -298,7 +312,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
               duration: 0.9,
               ease: 'power3.inOut'
             },
-            '<0.01'
+            `${label}_return+=0.01`
           );
           tl.to(
             `.rect-${shape.id}`,
@@ -314,7 +328,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
               duration: 0.9,
               ease: 'power3.inOut'
             },
-            '<'
+            `${label}_return`
           );
         });
 
@@ -322,7 +336,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
         const nextLogo = logosToAnimate[(idx + 1) % logosToAnimate.length];
         tl.addLabel(`${label}_collapse`);
         tl.call(() => setCurrentPhaseName(`5. Convergencia Central → Próximo: ${nextLogo.serviceName}`));
-        tl.to('.clock-guides-main', { opacity: 0.1, duration: 0.2 }, '<');
+        tl.to('.clock-guides-main', { opacity: 0.1, duration: 0.2 }, `${label}_collapse`);
 
         st.shapes.forEach((shape) => {
           const nextShape = nextLogo.shapes.find((s) => s.id === shape.id) || shape;
@@ -334,7 +348,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
               duration: 0.7,
               ease: 'power3.inOut'
             },
-            '<0.01'
+            `${label}_collapse+=0.01`
           );
           tl.to(
             `.rect-${shape.id}`,
@@ -344,7 +358,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
               duration: 0.7,
               ease: 'power3.inOut'
             },
-            '<'
+            `${label}_collapse`
           );
         });
 
@@ -371,7 +385,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
     setActiveLogoIndex(idx);
     if (timelineRef.current) {
       if (isLoopMode) {
-        const targetLabel = `state_${INITIAL_DATA[idx].serviceId}_${idx}_clock`;
+        const targetLabel = `state_${ALL_DATA[idx].serviceId}_${idx}_clock`;
         timelineRef.current.seek(targetLabel);
         if (!isPlaying) {
           timelineRef.current.play();
@@ -384,11 +398,11 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
   };
 
   const nextLogo = () => {
-    const nextIdx = (activeLogoIndex + 1) % INITIAL_DATA.length;
+    const nextIdx = (activeLogoIndex + 1) % ALL_DATA.length;
     setActiveLogoIndex(nextIdx);
     if (timelineRef.current) {
       if (isLoopMode) {
-        const targetLabel = `state_${INITIAL_DATA[nextIdx].serviceId}_${nextIdx}_clock`;
+        const targetLabel = `state_${ALL_DATA[nextIdx].serviceId}_${nextIdx}_clock`;
         timelineRef.current.seek(targetLabel);
         if (!isPlaying) {
           timelineRef.current.play();
@@ -401,11 +415,11 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
   };
 
   const prevLogo = () => {
-    const prevIdx = (activeLogoIndex - 1 + INITIAL_DATA.length) % INITIAL_DATA.length;
+    const prevIdx = (activeLogoIndex - 1 + ALL_DATA.length) % ALL_DATA.length;
     setActiveLogoIndex(prevIdx);
     if (timelineRef.current) {
       if (isLoopMode) {
-        const targetLabel = `state_${INITIAL_DATA[prevIdx].serviceId}_${prevIdx}_clock`;
+        const targetLabel = `state_${ALL_DATA[prevIdx].serviceId}_${prevIdx}_clock`;
         timelineRef.current.seek(targetLabel);
         if (!isPlaying) {
           timelineRef.current.play();
@@ -441,7 +455,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
 
   // Export Standalone HTML
   const handleExportHtml = () => {
-    const logosToAnimate = isLoopMode ? INITIAL_DATA : [currentLogo];
+    const logosToAnimate = isLoopMode ? ALL_DATA : [currentLogo];
     const htmlCode = generateInlumenaiStandaloneHtml(
       logosToAnimate,
       isLoopMode,
@@ -456,7 +470,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
 
   // Send to Animated Canvas
   const handleSendToCanvas = () => {
-    const logosToAnimate = isLoopMode ? INITIAL_DATA : [currentLogo];
+    const logosToAnimate = isLoopMode ? ALL_DATA : [currentLogo];
     const htmlCode = generateInlumenaiStandaloneHtml(
       logosToAnimate,
       isLoopMode,
@@ -615,7 +629,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
                 {isLoopMode ? 'Punto de Salida / Enfoque' : 'Seleccionar Isotipo'}
               </label>
               <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto pr-1">
-                {INITIAL_DATA.map((srv, idx) => (
+                {ALL_DATA.map((srv, idx) => (
                   <button
                     key={srv.serviceId}
                     onClick={() => handleSelectLogo(idx)}
@@ -731,7 +745,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
             <button
               id="btn-motion-to-canvas"
               onClick={handleSendToCanvas}
-              title="Transferir la secuencia animada a Animation (Paso 3 del ecosistema)"
+              title="Transferir la secuencia animada a Animation (Paso 2 del ecosistema)"
               className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold flex items-center justify-between shadow-lg shadow-purple-500/25 active:scale-98 transition-all cursor-pointer"
             >
               <div className="flex items-center gap-2">
@@ -739,7 +753,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
                 <span>Continuar a Animation</span>
               </div>
               <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded font-mono font-black">
-                Paso 3 ➔
+                Paso 2 ➔
               </span>
             </button>
 
@@ -757,13 +771,6 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
             >
               <Download className="w-4 h-4 text-cyan-400" />
               <span>Exportar SVG del Frame</span>
-            </button>
-
-            <button
-              onClick={onBackToMatrix}
-              className="w-full py-1.5 text-xs text-slate-400 hover:text-white transition-colors text-center block"
-            >
-              ← Volver a Matrix
             </button>
           </div>
         </aside>
@@ -894,11 +901,11 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
               <circle cx={TARGET_CENTER} cy={TARGET_CENTER} r="5" fill="#14E5C3" opacity="0.85" />
             </g>
 
-            {/* Master Rotation Group & 13 Nodes */}
+            {/* Master Rotation Group & Nodes */}
             <g className="master-rotation-group">
-              {INITIAL_DATA[0].shapes.map((shape) => (
+              {allUniqueShapes.map((shape) => (
                 <g key={shape.id} className={`g-${shape.id}`}>
-                  <rect className={`rect-${shape.id}`} />
+                  <rect className={`rect-${shape.id}`} x="0" y="0" />
                 </g>
               ))}
             </g>
@@ -997,7 +1004,7 @@ export const InlumenaiMotion: React.FC<InlumenaiMotionProps> = ({
       {/* Animation Preview Modal (Modo Cine / Editor) */}
       {showModalPreview && (
         <AnimationPreviewModal
-          logos={INITIAL_DATA}
+          logos={ALL_DATA}
           initialIndex={activeLogoIndex}
           onClose={() => setShowModalPreview(false)}
         />

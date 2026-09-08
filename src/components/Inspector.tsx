@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sliders, Lock, Unlock, Eye, EyeOff } from 'lucide-react';
 import { HmaPiece } from '../types';
-import { PALETTES } from '../constants';
+import { ShapeColorPicker } from './common/ShapeColorPicker';
 
 export default function Inspector({
   piece,
@@ -12,13 +12,11 @@ export default function Inspector({
   onUpdate: (id: string, updates: Partial<HmaPiece>) => void;
   palette: 'luz' | 'profundo';
 }) {
-  const colors = PALETTES[palette];
-
   return (
-    <div className="glass-panel w-72 h-full flex flex-col p-4 z-10 mr-4 mt-4 mb-4">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-sm font-bold flex items-center gap-2 uppercase tracking-wider">
-          <Sliders className="w-4 h-4 text-accent-cyan" />
+    <div className="glass-panel w-80 h-full flex flex-col p-4 z-10 mr-4 mt-4 mb-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-bold flex items-center gap-2 uppercase tracking-wider text-slate-100">
+          <Sliders className="w-4 h-4 text-[#3D80FD]" />
           Inspector ({piece.typeId})
         </h2>
         <div className="flex gap-2">
@@ -32,14 +30,20 @@ export default function Inspector({
             onClick={() => onUpdate(piece.id, { locked: !piece.locked })}
             className="p-1.5 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
           >
-            {piece.locked ? <Lock className="w-4 h-4 text-accent-emerald" /> : <Unlock className="w-4 h-4" />}
+            {piece.locked ? <Lock className="w-4 h-4 text-emerald-400" /> : <Unlock className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      <div className="space-y-5 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-4 flex-1 overflow-y-auto pr-1 custom-scrollbar">
+        {/* Selector de Color y Paletas de la Forma */}
+        <ShapeColorPicker
+          currentColor={piece.color}
+          onChangeColor={(color) => onUpdate(piece.id, { color })}
+        />
+
         {/* Transform Group */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-2 border-t border-white/10">
           <h3 className="text-xs text-white/50 uppercase tracking-widest font-semibold">Transform (M)</h3>
           
           <div className="flex gap-3">
@@ -91,24 +95,6 @@ export default function Inspector({
               />
               <span className="w-12 text-right text-xs font-mono">{piece.scale}x</span>
             </div>
-          </div>
-        </div>
-
-        <hr className="border-white/10" />
-
-        {/* Color Group */}
-        <div className="space-y-3">
-          <h3 className="text-xs text-white/50 uppercase tracking-widest font-semibold">Color</h3>
-          <div className="flex flex-wrap gap-2">
-            {colors.map(c => (
-              <button
-                key={c}
-                onClick={() => onUpdate(piece.id, { color: c })}
-                className={`w-8 h-8 rounded-full border-2 transition-transform ${piece.color === c ? 'border-white scale-110' : 'border-transparent hover:scale-110'}`}
-                style={{ backgroundColor: c }}
-                disabled={piece.locked}
-              />
-            ))}
           </div>
         </div>
       </div>

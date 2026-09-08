@@ -5,6 +5,7 @@
 
 import { AnimatedLayer, BoundingBoxSize, HMAPiece, HMAProjectData } from '../types/hma';
 import { APP_VERSION, getShapeSvgPath, MODULE_PX } from '../data/hmaDefinitions';
+import { TechnicalBox, DEFAULT_TECHNICAL_BOXES, CANVAS_CENTER } from '../types';
 
 /**
  * Downloads a text or binary blob to the user's browser
@@ -69,7 +70,8 @@ export function generateTechnicalBlueprintSvg(
   pieces: HMAPiece[],
   activePresetName = 'HMA Master',
   boundingBoxSize: BoundingBoxSize = '11x11',
-  viewSize = 1000
+  viewSize = 1000,
+  technicalBoxes?: TechnicalBox[]
 ): string {
   const visiblePieces = pieces.filter((p) => p.visible).sort((a, b) => a.zIndex - b.zIndex);
   const half = viewSize / 2;
@@ -86,9 +88,69 @@ export function generateTechnicalBlueprintSvg(
     gridLines += `    <line x1="${-half}" y1="${y}" x2="${half}" y2="${y}" stroke="${isMajor ? '#06B6D4' : '#1e293b'}" stroke-width="${isMajor ? 1.5 : 0.75}" stroke-dasharray="${isMajor ? 'none' : '4,4'}" />\n`;
   }
 
-  // Bounding box
+  // Render Technical Boxes
   let boundingBoxSvg = '';
-  if (boundingBoxSize !== 'none') {
+  const boxesToRender = technicalBoxes
+    ? technicalBoxes.filter((b) => b.visible)
+    : DEFAULT_TECHNICAL_BOXES.filter((b) => b.visible);
+
+  if (boxesToRender.length > 0) {
+    for (const box of boxesToRender) {
+      const cx = box.x - CANVAS_CENTER;
+      const cy = box.y - CANVAS_CENTER;
+      const strokeDash =
+        box.strokeDash === 'dashed'
+          ? 'stroke-dasharray="6,6"'
+          : box.strokeDash === 'dotted'
+          ? 'stroke-dasharray="2,4"'
+          : '';
+
+      if (box.category === 'circular' || box.id === 'box-circular-10x10') {
+        const radius = box.widthPx / 2;
+        const angles = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360];
+        let nodesSvg = '';
+        for (const angle of angles) {
+          const rad = (angle * Math.PI) / 180;
+          const nx = cx + radius * Math.cos(rad);
+          const ny = cy + radius * Math.sin(rad);
+          nodesSvg += `      <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="${box.color}" stroke-width="0.8" stroke-dasharray="2,3" stroke-opacity="0.35" />\n`;
+          nodesSvg += `      <circle cx="${nx}" cy="${ny}" r="4" fill="${box.color}" stroke="#060C04" stroke-width="1.5" />\n`;
+        }
+        boundingBoxSvg += `
+    <!-- Circular Template: ${box.name} -->
+    <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${box.color}" stroke-width="${box.strokeWidth || 1.5}" ${strokeDash} stroke-opacity="0.9" />
+${nodesSvg}
+    <text x="${cx - radius}" y="${cy - radius - 10}" fill="${box.color}" font-family="JetBrains Mono, monospace" font-size="11" font-weight="bold">${box.customLabel || box.name}</text>
+        `;
+      } else {
+        const w = box.widthPx;
+        const h = box.heightPx;
+        const left = cx - w / 2;
+        const top = cy - h / 2;
+        let guidesSvg = '';
+        if (box.showMarginGuides) {
+          if (box.marginTopM) {
+            guidesSvg += `      <line x1="${left}" y1="${top + box.marginTopM * mod}" x2="${left + w}" y2="${top + box.marginTopM * mod}" stroke="${box.color}" stroke-width="1" stroke-dasharray="4,4" stroke-opacity="0.6" />\n`;
+          }
+          if (box.marginBottomM) {
+            guidesSvg += `      <line x1="${left}" y1="${top + h - box.marginBottomM * mod}" x2="${left + w}" y2="${top + h - box.marginBottomM * mod}" stroke="${box.color}" stroke-width="1" stroke-dasharray="4,4" stroke-opacity="0.6" />\n`;
+          }
+          if (box.marginLeftM) {
+            guidesSvg += `      <line x1="${left + box.marginLeftM * mod}" y1="${top}" x2="${left + box.marginLeftM * mod}" y2="${top + h}" stroke="${box.color}" stroke-width="1" stroke-dasharray="4,4" stroke-opacity="0.6" />\n`;
+          }
+          if (box.marginRightM) {
+            guidesSvg += `      <line x1="${left + w - box.marginRightM * mod}" y1="${top}" x2="${left + w - box.marginRightM * mod}" y2="${top + h}" stroke="${box.color}" stroke-width="1" stroke-dasharray="4,4" stroke-opacity="0.6" />\n`;
+          }
+        }
+        boundingBoxSvg += `
+    <!-- Technical Box: ${box.name} -->
+    <rect x="${left}" y="${top}" width="${w}" height="${h}" fill="none" stroke="${box.color}" stroke-width="${box.strokeWidth || 1.5}" ${strokeDash} stroke-opacity="0.9" />
+${guidesSvg}
+    <text x="${left}" y="${top - 10}" fill="${box.color}" font-family="JetBrains Mono, monospace" font-size="11" font-weight="bold">${box.customLabel || box.name}</text>
+        `;
+      }
+    }
+  } else if (boundingBoxSize !== 'none') {
     const mult = parseInt(boundingBoxSize.split('x')[0], 10) || 11;
     const boxSize = mult * mod;
     boundingBoxSvg = `

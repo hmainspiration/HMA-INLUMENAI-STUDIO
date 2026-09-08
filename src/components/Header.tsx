@@ -6,10 +6,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Sparkles,
-  Layers,
   Film,
   Download,
-  Anchor,
   Sun,
   Moon,
   HelpCircle,
@@ -24,10 +22,12 @@ import {
   Search,
   CheckCircle,
   FilePlus,
-  FolderOpen
+  FolderOpen,
+  LayoutGrid
 } from 'lucide-react';
 import { AppToolMode, PaletteMode } from '../types/hma';
 import { APP_VERSION, HMA_PRESETS, MASTER_VARIANTS } from '../data/hmaDefinitions';
+import { HmaMasterIcon } from './HmaMasterIcon';
 
 interface HeaderProps {
   activeTool: AppToolMode;
@@ -36,15 +36,14 @@ interface HeaderProps {
   onSelectPreset: (presetId: string) => void;
   paletteMode: PaletteMode;
   onTogglePalette: () => void;
-  onAnchorBase: () => void;
   onExportCleanSvg: () => void;
-  onExportBlueprint: () => void;
   onExportPng: (scale: 2 | 4) => void;
   onSaveJson: () => void;
   onLoadJson: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onLoadSvg?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onOpenOrientation: () => void;
   onResetCanvas: () => void;
+  onOpenDashboard?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -54,15 +53,14 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectPreset,
   paletteMode,
   onTogglePalette,
-  onAnchorBase,
   onExportCleanSvg,
-  onExportBlueprint,
   onExportPng,
   onSaveJson,
   onLoadJson,
   onLoadSvg,
   onOpenOrientation,
-  onResetCanvas
+  onResetCanvas,
+  onOpenDashboard
 }) => {
   const [exportOpen, setExportOpen] = useState(false);
   const [presetDropdownOpen, setPresetDropdownOpen] = useState(false);
@@ -120,37 +118,43 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="h-16 border-b border-white/10 bg-[#060C04]/90 backdrop-blur-md sticky top-0 z-50 px-4 flex items-center justify-between gap-3 select-none">
-      {/* Brand & Version Badge */}
+      {/* Brand & Version Badge (Clic para abrir Dashboard inicial) */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <span className="font-mono font-black text-white text-xs tracking-tighter">HMA</span>
+        <button
+          onClick={onOpenDashboard}
+          className="flex items-center gap-2.5 text-left group hover:opacity-95 transition-opacity"
+          title="Abrir selector inicial de secciones"
+        >
+          {/* Icono Oficial HMA MASTER */}
+          <div className="w-9 h-9 rounded-xl bg-[#0e1722] border border-white/15 group-hover:border-[#3D80FD]/70 flex items-center justify-center p-1.5 shadow-md shadow-[#3D80FD]/15 transition-all group-hover:scale-105">
+            <HmaMasterIcon size={30} glow />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-extrabold text-white text-sm tracking-tight hidden sm:inline-block">
-                HMA INLUMENAI STUDIO
+              <h1 className="font-black text-white text-sm tracking-tight group-hover:text-[#3D80FD] transition-colors hidden sm:inline-block">
+                HMA INLUMENAI
               </h1>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#3D80FD]/20 text-[#3D80FD] border border-[#3D80FD]/40 shadow-sm">
                 {APP_VERSION}
               </span>
             </div>
             <p className="text-[10px] text-slate-400 font-mono hidden md:block">
-              1M = 67px • Sistema Paramétrico de 13 Formas
+              1M = 67px • 13 Formas Canónicas
             </p>
           </div>
-        </div>
-
-        {/* Quick Anchor Base Button */}
-        <button
-          id="btn-anchor-base-header"
-          onClick={onAnchorBase}
-          title="Restaura la alineación canónica de las 7 piezas base inferiores"
-          className="ml-1 hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 border border-blue-500/40 transition-all active:scale-95 shadow-sm"
-        >
-          <Anchor className="w-3.5 h-3.5 text-cyan-400" />
-
         </button>
+
+        {/* Botón directo de Dashboard */}
+        {onOpenDashboard && (
+          <button
+            onClick={onOpenDashboard}
+            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-[#3D80FD]/15 text-slate-300 hover:text-[#3D80FD] text-xs font-semibold border border-white/10 hover:border-[#3D80FD]/40 transition-colors"
+            title="Ver las 3 secciones principales"
+          >
+            <LayoutGrid size={13} className="text-[#3D80FD]" />
+            <span>Secciones</span>
+          </button>
+        )}
       </div>
 
       {/* Center: Template Selector & Palette */}
@@ -256,26 +260,6 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
         </div>
-
-        {/* Chromatic Palette Toggle (Luz / Profundo) */}
-        <button
-          id="btn-palette-toggle"
-          onClick={onTogglePalette}
-          title={`Cambiar a ${paletteMode === 'luz' ? 'Fondo Oscuro Predeterminado' : 'Fondo Claro Predeterminado'}`}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-xs font-mono text-slate-200 border border-white/10 transition-colors shadow-sm"
-        >
-          {paletteMode === 'luz' ? (
-            <>
-              <Sun className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline text-amber-100 font-semibold truncate max-w-[150px]">Fondo Claro Predeterminado</span>
-            </>
-          ) : (
-            <>
-              <Moon className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="hidden sm:inline text-indigo-200 font-semibold truncate max-w-[150px]">Fondo Oscuro Predeterminado</span>
-            </>
-          )}
-        </button>
       </div>
 
       {/* Tool Navigation Switcher Tabs (Ecosistema Continuo: Matrix ➔ Motion ➔ Animation) */}
@@ -283,27 +267,27 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           id="tab-tool-matrix"
           onClick={() => setActiveTool('matrix')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
             activeTool === 'matrix'
-              ? 'bg-cyan-500 text-black shadow-md shadow-cyan-500/30 font-bold'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/30 font-bold'
               : 'text-slate-400 hover:text-white hover:bg-white/5'
           }`}
         >
           <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-mono font-bold ${
-            activeTool === 'matrix' ? 'bg-black/25 text-black' : 'bg-slate-800 text-slate-400'
+            activeTool === 'matrix' ? 'bg-white/25 text-white' : 'bg-slate-800 text-slate-400'
           }`}>
             1
           </span>
-          <Layers className="w-3.5 h-3.5" />
+          <FileCode className="w-3.5 h-3.5" />
           <span>Matrix</span>
         </button>
 
-        <span className="text-slate-600 px-1 font-mono text-xs select-none">➔</span>
+        <span className="text-slate-600 px-1.5 font-mono text-xs select-none">➔</span>
 
         <button
           id="tab-tool-motion"
           onClick={() => setActiveTool('motion')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
             activeTool === 'motion'
               ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 font-bold'
               : 'text-slate-400 hover:text-white hover:bg-white/5'
@@ -318,12 +302,12 @@ export const Header: React.FC<HeaderProps> = ({
           <span>Motion</span>
         </button>
 
-        <span className="text-slate-600 px-1 font-mono text-xs select-none">➔</span>
+        <span className="text-slate-600 px-1.5 font-mono text-xs select-none">➔</span>
 
         <button
           id="tab-tool-canvas"
           onClick={() => setActiveTool('canvas')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
             activeTool === 'canvas'
               ? 'bg-purple-600 text-white shadow-md shadow-purple-500/30 font-bold'
               : 'text-slate-400 hover:text-white hover:bg-white/5'
@@ -427,20 +411,6 @@ export const Header: React.FC<HeaderProps> = ({
                 <div>
                   <div className="font-semibold">SVG Vectorial Limpio</div>
                   <div className="text-[10px] text-slate-400">Sin clases CSS ni basura DOM</div>
-                </div>
-              </button>
-
-              <button
-                onClick={() => {
-                  onExportBlueprint();
-                  setExportOpen(false);
-                }}
-                className="w-full text-left px-2.5 py-2 rounded-lg text-xs text-slate-200 hover:bg-slate-800 flex items-center gap-2.5 transition-colors"
-              >
-                <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-                <div>
-                  <div className="font-semibold">Blueprint Técnico (Cotas M)</div>
-                  <div className="text-[10px] text-slate-400">Con retícula milimétrica y metadatos</div>
                 </div>
               </button>
 

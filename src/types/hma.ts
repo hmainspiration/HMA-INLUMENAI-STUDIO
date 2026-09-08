@@ -168,6 +168,8 @@ export interface GridSettings {
   snapStep: number; // 1M, 0.5M or 0.25M
   moveStepMode?: MoveStepMode;
   showTechnicalGuides?: boolean;
+  spacingEnabled?: boolean;
+  spacingGapM?: number; // Distance in M (e.g. 0.25M to 2M)
   wireframeMode: boolean;
   zoom: number;
   panX: number;

@@ -1,37 +1,37 @@
 /**
  * HMA INLUMENAI STUDIO (v2026.40)
- * Unified Platform: Matrix + Motion + Animated Canvas SVG
+ * Unified Platform: Motion + Animated Canvas SVG
  * @license Apache-2.0
  */
 
 import React, { useState } from 'react';
-import { Layers, Film, Sparkles, HelpCircle } from 'lucide-react';
+import { Film, Sparkles, HelpCircle } from 'lucide-react';
 import { AppToolMode, GridSettings, HMAPiece, PaletteMode, AnimatedLayer } from './types/hma';
+import { LogoData } from './types';
 import {
   APP_VERSION,
   HMA_PRESETS,
-  MODULE_PX,
-  getCanonicalBasePieces
+  MODULE_PX
 } from './data/hmaDefinitions';
 import { mapShapePieceToHMAPiece } from './data/presets';
 import { Header } from './components/Header';
-import { HmaMatrixStudio } from './components/matrix/HmaMatrixStudio';
 import { InlumenaiMotion } from './components/motion/InlumenaiMotion';
 import { AnimatedSvgCanvasEditor } from './components/canvas/AnimatedSvgCanvasEditor';
+import { MatrixStudio } from './components/matrix/MatrixStudio';
 import { OrientationModal } from './components/OrientationModal';
+import { HmaDashboard } from './components/dashboard/HmaDashboard';
 import {
   downloadFile,
   exportHighResPng,
   exportProjectJson,
-  generateCleanSvg,
-  generateTechnicalBlueprintSvg
+  generateCleanSvg
 } from './utils/exportUtils';
 
 export default function App() {
   const [activeTool, setActiveTool] = useState<AppToolMode>('matrix');
+  const [showDashboard, setShowDashboard] = useState<boolean>(true);
   const [activePresetId, setActivePresetId] = useState<string>('hma-master');
-  const [paletteMode, setPaletteMode] = useState<PaletteMode>('luz');
-  const [selectedPieceId, setSelectedPieceId] = useState<string | null>(null);
+  const [paletteMode, setPaletteMode] = useState<PaletteMode>('profundo');
   const [showOrientationModal, setShowOrientationModal] = useState<boolean>(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
 
@@ -46,29 +46,19 @@ export default function App() {
   const activePreset =
     HMA_PRESETS.find((p) => p.id === activePresetId) || HMA_PRESETS[0];
 
-  // Pieces state (initial clone from active preset)
+  // Pieces state (initial clone from active preset for Motion sequences)
   const [pieces, setPieces] = useState<HMAPiece[]>(() => [...activePreset.pieces]);
 
-  // Grid Settings state
-  const [gridSettings, setGridSettings] = useState<GridSettings>({
-    moduleSize: MODULE_PX,
-    showGrid: true,
-    showSubgrid05: false,
-    showSubgrid025: false,
-    showOrigin: true,
-    showDimensions: false,
-    showBoundingBox: '11x11',
-    showTechnicalGuides: false,
-    moveStepMode: '1.0M',
-    snapToGrid: true,
-    snapStep: MODULE_PX,
-    wireframeMode: false,
-    zoom: 1,
-    panX: 0,
-    panY: 0
-  });
+  const [customLogos, setCustomLogos] = useState<LogoData[]>([]);
 
-  // Animated Canvas layers state with 4 default initial layers matching reference images
+  // Transfer Isotype from Matrix to Motion
+  const handleSendMatrixToMotion = (logo: LogoData) => {
+    setCustomLogos((prev) => [...prev, logo]);
+    setActiveTool('motion');
+    showNotification(`Isotipo "${logo.serviceName}" transferido a Motion exitosamente.`);
+  };
+
+  // Animated Canvas layers state with default initial layers
   const [canvasLayers, setCanvasLayers] = useState<AnimatedLayer[]>([
     {
       id: 'layer-profundo',
@@ -153,17 +143,12 @@ export default function App() {
     }
   ]);
 
-  // Active colors based on palette mode
-  const colorLuz = activePreset.colorLuz;
-  const colorProfundo = activePreset.colorProfundo;
-
-  // Change preset handler (Lectura real de plantillas)
+  // Change preset handler
   const handleSelectPreset = (presetId: string) => {
     setActivePresetId(presetId);
     const found = HMA_PRESETS.find((p) => p.id === presetId);
     if (found) {
       setPieces([...found.pieces]);
-      setSelectedPieceId(null);
       showNotification(`Plantilla "${found.name}" cargada correctamente con ${found.pieces.length} piezas.`);
     }
   };
@@ -173,7 +158,6 @@ export default function App() {
     const nextMode: PaletteMode = paletteMode === 'luz' ? 'profundo' : 'luz';
     setPaletteMode(nextMode);
 
-    // Apply color logic
     setPieces((prev) =>
       prev.map((p) => ({
         ...p,
@@ -189,22 +173,10 @@ export default function App() {
     );
   };
 
-
-  const handleAnchorBase = () => {
-    const canonicalBase = getCanonicalBasePieces(colorLuz, colorProfundo);
-    setPieces((prev) => {
-      const upperPieces = prev.filter((p) => p.category === 'upper');
-      return [...canonicalBase, ...upperPieces];
-    });
-    showNotification('Base canónica H-M-A anclada en sus 7 posiciones oficiales.', 'info');
-  };
-
   // Reset Canvas to initial state
   const handleResetCanvas = () => {
     if (activePreset) {
       setPieces([...activePreset.pieces]);
-      setSelectedPieceId(null);
-      setGridSettings((s) => ({ ...s, zoom: 1, panX: 0, panY: 0 }));
       showNotification(`Lienzo restablecido al estado original de ${activePreset.name}.`, 'info');
     }
   };
@@ -212,24 +184,8 @@ export default function App() {
   // Export Clean SVG
   const handleExportCleanSvg = () => {
     const svgCode = generateCleanSvg(pieces, 800, false);
-    downloadFile(svgCode, `HMA_MATRIX_CLEAN_${activePreset.id}_${APP_VERSION}.svg`, 'image/svg+xml');
+    downloadFile(svgCode, `HMA_ISOTYPE_CLEAN_${activePreset.id}_${APP_VERSION}.svg`, 'image/svg+xml');
     showNotification('SVG Vectorial Limpio descargado exitosamente.');
-  };
-
-  // Export Technical Blueprint
-  const handleExportBlueprint = () => {
-    const blueprintSvg = generateTechnicalBlueprintSvg(
-      pieces,
-      activePreset.name,
-      gridSettings.showBoundingBox,
-      1000
-    );
-    downloadFile(
-      blueprintSvg,
-      `HMA_MATRIX_BLUEPRINT_${activePreset.id}_${APP_VERSION}.svg`,
-      'image/svg+xml'
-    );
-    showNotification('Blueprint Técnico descargado exitosamente.');
   };
 
   // Export PNG @2x or @4x
@@ -240,7 +196,7 @@ export default function App() {
       800,
       scale,
       true,
-      `HMA_MATRIX_${activePreset.id}_@${scale}x_${APP_VERSION}.png`
+      `HMA_ISOTYPE_${activePreset.id}_@${scale}x_${APP_VERSION}.png`
     );
     showNotification(`PNG @${scale}x exportado en alta resolución.`);
   };
@@ -261,7 +217,7 @@ export default function App() {
       try {
         const json = JSON.parse(event.target?.result as string);
         
-        // Check if shapes array exists (Canonical format from user JSON)
+        // Check if shapes array exists
         if (json.shapes && Array.isArray(json.shapes)) {
           const loadedPieces = json.shapes.map(mapShapePieceToHMAPiece);
           setPieces(loadedPieces);
@@ -272,7 +228,7 @@ export default function App() {
           if (json.paletteMode) {
             setPaletteMode(json.paletteMode);
           }
-          showNotification(`Plantilla canónica "${json.serviceName || file.name}" cargada con ${loadedPieces.length} formas.`);
+          showNotification(`Plantilla canónica "${json.serviceName || file.name}" cargada.`);
           return;
         }
 
@@ -282,11 +238,11 @@ export default function App() {
           if (isShapeFormat) {
             const loadedPieces = json.map(mapShapePieceToHMAPiece);
             setPieces(loadedPieces);
-            showNotification(`Matriz de ${loadedPieces.length} formas cargada.`);
+            showNotification(`Secuencia de ${loadedPieces.length} formas cargada.`);
             return;
           } else if (json.length > 0 && 'shapeType' in json[0]) {
             setPieces(json);
-            showNotification(`Matriz de ${json.length} piezas cargada.`);
+            showNotification(`Colección de ${json.length} piezas cargada.`);
             return;
           }
         }
@@ -358,7 +314,7 @@ export default function App() {
 
         setCanvasLayers((prev) => [...prev, newLayer]);
         setActiveTool('canvas');
-        showNotification(`SVG "${file.name}" importado a Canvas Animado.`);
+        showNotification(`SVG "${file.name}" importado a Animation Canvas.`);
       } catch (err) {
         console.error('Error al cargar SVG:', err);
         showNotification('Error al leer el archivo SVG.', 'error');
@@ -411,12 +367,12 @@ export default function App() {
 
     setCanvasLayers((prev) => [...prev, newLayer]);
     setActiveTool('canvas');
-    showNotification(`Secuencia Inlumenai "${name}" transferida y activa en Canvas Animado.`);
+    showNotification(`Secuencia Inlumenai "${name}" transferida a Animation.`);
   };
 
   return (
     <div 
-      className={`min-h-screen ${paletteMode === 'luz' ? 'bg-[#FEFAE8] text-slate-900' : 'bg-[#060C04] text-slate-100'} flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200 transition-colors duration-500`}
+      className="h-screen w-screen bg-[#000424] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200 overflow-hidden"
     >
       {/* Universal Studio Header */}
       <Header
@@ -426,15 +382,14 @@ export default function App() {
         onSelectPreset={handleSelectPreset}
         paletteMode={paletteMode}
         onTogglePalette={handleTogglePalette}
-        onAnchorBase={handleAnchorBase}
         onExportCleanSvg={handleExportCleanSvg}
-        onExportBlueprint={handleExportBlueprint}
         onExportPng={handleExportPng}
         onSaveJson={handleSaveJson}
         onLoadJson={handleLoadJson}
         onLoadSvg={handleLoadSvg}
         onOpenOrientation={() => setShowOrientationModal(true)}
         onResetCanvas={handleResetCanvas}
+        onOpenDashboard={() => setShowDashboard(true)}
       />
 
       {/* Floating Notification Toast */}
@@ -454,61 +409,50 @@ export default function App() {
       )}
 
       {/* Main Integrated Views */}
-      <main className="flex-1 flex flex-col overflow-hidden relative pb-14 sm:pb-0">
-        {/* Module 1: HMA Matrix */}
+      <main className="flex-1 min-h-0 flex flex-col overflow-hidden relative">
+        {/* Module 1: Matrix Studio */}
         {activeTool === 'matrix' && (
-          <HmaMatrixStudio
-            pieces={pieces}
-            setPieces={setPieces}
-            selectedPieceId={selectedPieceId}
-            setSelectedPieceId={setSelectedPieceId}
-            gridSettings={gridSettings}
-            setGridSettings={setGridSettings}
-            onAnchorBase={handleAnchorBase}
-            colorLuz={colorLuz}
-            colorProfundo={colorProfundo}
-            activePresetName={activePreset.name}
-            onLoadJson={handleLoadJson}
-            onLoadSvg={handleLoadSvg}
-            onProceedToMotion={() => setActiveTool('motion')}
+          <MatrixStudio
+            paletteMode={paletteMode}
+            onSendToMotion={handleSendMatrixToMotion}
+            showNotification={showNotification}
           />
         )}
 
-        {/* Module 2: Motion (GSAP) */}
+        {/* Module 2: Motion (GSAP Sequencer) */}
         {activeTool === 'motion' && (
           <InlumenaiMotion
             currentPieces={pieces}
+            customLogos={customLogos}
             paletteMode={paletteMode}
             onSendToCanvas={handleSendMotionToCanvas}
-            onBackToMatrix={() => setActiveTool('matrix')}
           />
         )}
 
-        {/* Module 3: Animated SVG Canvas & Video Recorder */}
+        {/* Module 2: Animation (Animated SVG Canvas & Video Recorder) */}
         {activeTool === 'canvas' && (
           <AnimatedSvgCanvasEditor
             layers={canvasLayers}
             setLayers={setCanvasLayers}
-            onBackToMatrix={() => setActiveTool('matrix')}
           />
         )}
       </main>
 
-      {/* Dedicated Mobile / Smartphone Bottom Navigation Bar (Ecosistema Continuo) */}
+      {/* Dedicated Mobile / Smartphone Bottom Navigation Bar */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#060C04]/95 border-t border-white/15 backdrop-blur-xl flex items-center justify-around py-1.5 px-2 shadow-2xl safe-area-pb">
         <button
           onClick={() => setActiveTool('matrix')}
           className={`flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono transition-all ${
             activeTool === 'matrix'
-              ? 'text-cyan-300 font-bold bg-cyan-950/60 border border-cyan-500/40'
+              ? 'text-emerald-300 font-bold bg-emerald-950/60 border border-emerald-500/40'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <div className="relative">
-            <Layers className="w-4 h-4" />
-            <span className="absolute -top-1 -right-2 w-3 h-3 bg-cyan-500 text-black text-[8px] font-bold rounded-full flex items-center justify-center">1</span>
+            <Sparkles className="w-4 h-4" />
+            <span className="absolute -top-1 -right-2 w-3 h-3 bg-emerald-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">1</span>
           </div>
-          <span>Matriz</span>
+          <span>Matrix</span>
         </button>
 
         <button
@@ -542,13 +486,33 @@ export default function App() {
         </button>
 
         <button
-          onClick={() => setShowOrientationModal(true)}
-          className="flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono text-slate-400 hover:text-amber-300 transition-colors"
+          onClick={() => setShowDashboard(true)}
+          className="flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono text-slate-400 hover:text-[#3D80FD] transition-colors"
+          title="Ver selector inicial de secciones"
         >
           <HelpCircle className="w-4 h-4" />
-          <span>Guía</span>
+          <span>Secciones</span>
         </button>
       </nav>
+
+      {/* Dashboard Inicial para escoger entre las tres secciones (HMA MASTER) */}
+      {showDashboard && (
+        <HmaDashboard
+          currentSection={activeTool}
+          canClose={true}
+          onClose={() => setShowDashboard(false)}
+          onSelectSection={(section) => {
+            setActiveTool(section);
+            setShowDashboard(false);
+            const sectionNames = {
+              matrix: 'Matrix Studio (Retícula 11x11)',
+              motion: 'Inlumenai Motion (Secuenciador GSAP)',
+              canvas: 'Animation Canvas (Compositor Multicapa)'
+            };
+            showNotification(`Sección activa: ${sectionNames[section] || section.toUpperCase()}`);
+          }}
+        />
+      )}
 
       {/* Interactive Orientation Guide Modal */}
       <OrientationModal

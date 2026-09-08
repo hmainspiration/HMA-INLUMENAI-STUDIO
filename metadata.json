@@ -1,6 +1,6 @@
 {
   "name": "HMA INLUMENAI STUDIO",
-  "description": "Suite unificada para ensamblaje paramétrico de isotipos (1M=67px), secuenciador de animación GSAP Motion y compositor de capas vectoriales con físicas continuas y grabador de video.",
+  "description": "Suite creativa de animación de isotipos: Secuenciador GSAP Motion y Compositor de capas vectoriales SVG con físicas dinámicas y grabador de video.",
   "requestFramePermissions": ["display-capture"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

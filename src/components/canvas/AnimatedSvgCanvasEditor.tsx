@@ -38,20 +38,19 @@ import { AnimatedLayer, BlendMode, CanvasAnimationType } from '../../types/hma';
 import { APP_VERSION } from '../../data/hmaDefinitions';
 import { INITIAL_DATA } from '../../data/canonicalLogos';
 import { downloadFile, generateAutonomousAnimatedHtml } from '../../utils/exportUtils';
-import { ExportModal } from '../matrix/ExportModal';
+import { ExportModal } from './ExportModal';
 import { ExportOptions } from '../../types';
 import { InlumenaiCanvasLayer } from './InlumenaiCanvasLayer';
+import { ShapeColorPicker } from '../common/ShapeColorPicker';
 
 interface AnimatedSvgCanvasEditorProps {
   layers: AnimatedLayer[];
   setLayers: React.Dispatch<React.SetStateAction<AnimatedLayer[]>>;
-  onBackToMatrix: () => void;
 }
 
 export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = ({
   layers,
-  setLayers,
-  onBackToMatrix
+  setLayers
 }) => {
   const [aspectRatio, setAspectRatio] = useState<'16:9' | '9:16' | '21:9'>('16:9');
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(layers[0]?.id || null);
@@ -479,13 +478,6 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
                 Canvas Animado ({APP_VERSION})
               </span>
               <div className="flex items-center gap-1.5">
-                <button
-                  onClick={onBackToMatrix}
-                  className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 transition-colors px-1.5 py-0.5 rounded hover:bg-white/5"
-                >
-                  <ArrowLeft className="w-3 h-3" />
-                  <span>Matrix</span>
-                </button>
                 <button
                   onClick={() => setIsLeftPanelOpen(false)}
                   title="Ocultar panel de capas (Lienzo amplio)"
@@ -1324,42 +1316,12 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
             {/* Color Customization */}
             {selectedLayer.animationType !== 'html-iframe' && !selectedLayer.isMotionSequence && selectedLayer.animationType !== 'inlumenai-morph' && (
               <div className="pt-2 border-t border-white/5">
-                <div className="flex items-center justify-between text-[11px] font-mono text-slate-300 mb-2">
-                  <span>Color SVG (Sobrescribir):</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={selectedLayer.color || '#ffffff'}
-                    onChange={(e) => handleUpdateLayer({ color: e.target.value })}
-                    className="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0"
-                  />
-                  <div className="flex flex-1 gap-1 flex-wrap">
-                    {[
-                      '#FEFAE8', '#060C04', // Backgrounds
-                      '#3D80FD', '#2D60C1', '#AE7176', '#77454A',
-                      '#D96B43', '#964222', '#052D63', '#031C3D',
-                      '#0E8490', '#074349', '#1D5B8F', '#1B3F67',
-                      '#7D77B0', '#514B7D', '#C5A367', '#82600A',
-                      '#315629', '#1B3315', '#75C962', '#4B893C',
-                      '#11D7B6', '#0A8570', '#D7BB11', '#8C7907'
-                    ].map(c => (
-                      <button
-                        key={c}
-                        onClick={() => handleUpdateLayer({ color: c })}
-                        className="w-4 h-4 rounded-full border border-white/20 hover:scale-110 transition-transform"
-                        style={{ backgroundColor: c }}
-                        title={c}
-                      />
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => handleUpdateLayer({ color: undefined })}
-                    className="text-[10px] text-slate-400 hover:text-red-400 border border-white/10 px-2 py-0.5 rounded"
-                  >
-                    Reset
-                  </button>
-                </div>
+                <ShapeColorPicker
+                  currentColor={selectedLayer.color || '#FFFFFF'}
+                  onChangeColor={(color) => handleUpdateLayer({ color })}
+                  wireframe={selectedLayer.wireframe}
+                  onToggleWireframe={(wireframe) => handleUpdateLayer({ wireframe })}
+                />
               </div>
             )}
           </div>

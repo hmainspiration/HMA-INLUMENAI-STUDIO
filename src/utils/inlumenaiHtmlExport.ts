@@ -31,22 +31,6 @@ export function generateInlumenaiStandaloneHtml(
     `;
   }).join('');
 
-  // Initial shapes based on the first logo to animate
-  const initialShapes = logosToAnimate[0].shapes.map(shape => {
-    const UNIT_M = 67;
-    return `
-      <g class="g-${shape.id}">
-        <rect class="rect-${shape.id}" 
-              width="${UNIT_M}" height="${UNIT_M}" 
-              x="0" y="0" 
-              rx="${UNIT_M / 2}" ry="${UNIT_M / 2}" 
-              fill="${isWireframe ? 'transparent' : shape.color}" 
-              stroke="${isWireframe ? shape.color : 'none'}" 
-              stroke-width="${isWireframe ? 2 : 0}" />
-      </g>
-    `;
-  }).join('');
-
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -94,8 +78,8 @@ export function generateInlumenaiStandaloneHtml(
         ${clockTicks}
       </g>
       <!-- Shapes -->
-      <g class="master-rotation-group">
-        ${initialShapes}
+      <g id="master-rotation-group">
+        <g id="shapes-layer"></g>
       </g>
     </svg>
   </div>
@@ -107,11 +91,25 @@ export function generateInlumenaiStandaloneHtml(
       const CLOCK_RADIUS = 360;
       const UNIT_M = 67;
       
-      const logosToAnimate = ${JSON.stringify(logosToAnimate)};
+      const RAW_DATA = ${JSON.stringify(logosToAnimate)};
       const isLoopMode = ${isLoopMode};
       const showTechnicalGuides = ${showTechnicalGuides};
-      const isWireframe = ${isWireframe};
-      const playbackSpeed = ${playbackSpeed};
+      const IS_WIREFRAME = ${isWireframe};
+      const SPEED_SCALE = ${playbackSpeed};
+
+      const shapesLayer = document.getElementById('shapes-layer');
+      const ALL_IDS = Array.from({ length: 13 }, (_, i) => \`forma-\${(i + 1).toString().padStart(2, '0')}\`);
+      
+      ALL_IDS.forEach(id => {
+          const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          g.setAttribute('id', \`g-\${id}\`);
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('id', \`rect-\${id}\`);
+          rect.setAttribute('x', '0');
+          rect.setAttribute('y', '0');
+          g.appendChild(rect);
+          shapesLayer.appendChild(g);
+      });
 
       function findPointPiece(shapes) {
         return shapes.find(s => Math.abs(s.length - s.width) < 0.01) || shapes[0];
@@ -134,20 +132,34 @@ export function generateInlumenaiStandaloneHtml(
         return map;
       }
 
-      gsap.set('.master-rotation-group', { svgOrigin: '540 540' });
+      gsap.set('#master-rotation-group', { svgOrigin: '540 540' });
       gsap.set('.clock-guides-main', { opacity: showTechnicalGuides ? 0.6 : 0 });
 
       // Initialize base shapes
-      const baseShapes = logosToAnimate[0].shapes;
-      baseShapes.forEach((shape) => {
-        gsap.set('.g-' + shape.id, { x: TARGET_CENTER, y: TARGET_CENTER, rotation: 0 });
-        gsap.set('.rect-' + shape.id, { x: -UNIT_M / 2, y: -UNIT_M / 2 });
+      ALL_IDS.forEach(id => {
+          gsap.set(\`#g-\${id}\`, { x: TARGET_CENTER, y: TARGET_CENTER, rotation: 0 });
+          gsap.set(\`#rect-\${id}\`, {
+              attr: { width: 67, height: 67, rx: 33.5, ry: 33.5 },
+              x: -33.5,
+              y: -33.5,
+              fill: IS_WIREFRAME ? 'transparent' : '#3D80FD',
+              stroke: IS_WIREFRAME ? '#3D80FD' : 'none',
+              strokeWidth: IS_WIREFRAME ? 2 : 0,
+              scale: 0,
+              opacity: 0
+          });
       });
 
-      const tl = gsap.timeline({ repeat: -1 });
-      tl.timeScale(playbackSpeed);
+      const tl = gsap.timeline({ repeat: isLoopMode ? -1 : 0 });
+      tl.timeScale(SPEED_SCALE);
+      
+      // Nacimiento
+      ALL_IDS.forEach((id, i) => {
+          tl.to(\`#rect-\${id}\`, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.5)" }, i * 0.02);
+      });
+      tl.to({}, { duration: 0.5 });
 
-      logosToAnimate.forEach((st, idx) => {
+      RAW_DATA.forEach((st, idx) => {
         const label = 'state_' + st.serviceId + '_' + idx;
         const clockPos = calculateClockPositions(st.shapes);
         const sortedShapes = [...st.shapes].sort((a, b) => a.id.localeCompare(b.id));
@@ -155,43 +167,53 @@ export function generateInlumenaiStandaloneHtml(
         // 1. FORMAR RELOJ
         tl.addLabel(label + '_clock');
         
-        tl.set('.master-rotation-group', {
+        tl.call(() => {
+             const parent = document.getElementById('shapes-layer');
+             if (parent) {
+                st.shapes.forEach(shape => {
+                    const el = document.getElementById(\`g-\${shape.id}\`);
+                    if (el) parent.appendChild(el);
+                });
+             }
+        });
+        
+        tl.set('#master-rotation-group', {
           x: 0, y: 0, scale: 1, rotation: 0, svgOrigin: '540 540'
         });
 
-        tl.to('.clock-guides-main', { opacity: showTechnicalGuides ? 0.7 : 0, duration: 0.35 }, '<');
+        tl.to('.clock-guides-main', { opacity: showTechnicalGuides ? 0.7 : 0, duration: 0.35 }, label + '_clock');
 
         sortedShapes.forEach(shape => {
           const target = clockPos[shape.id];
-          tl.to('.rect-' + shape.id, {
-            fill: isWireframe ? 'transparent' : shape.color,
-            stroke: isWireframe ? shape.color : 'none',
-            strokeWidth: isWireframe ? 2 : 0,
+          tl.to(\`#rect-\${shape.id}\`, {
+            fill: IS_WIREFRAME ? 'transparent' : shape.color,
+            stroke: IS_WIREFRAME ? shape.color : 'none',
+            strokeWidth: IS_WIREFRAME ? 2 : 0,
             attr: {
               width: UNIT_M, height: UNIT_M,
               rx: UNIT_M / 2, ry: UNIT_M / 2
             },
             x: -UNIT_M / 2, y: -UNIT_M / 2,
-            duration: 0.35, ease: 'power2.out'
-          }, '<');
-          tl.to('.g-' + shape.id, {
+            duration: 0.4, ease: 'power2.out'
+          }, label + '_clock');
+          tl.to(\`#g-\${shape.id}\`, {
             x: target.x, y: target.y, rotation: 0,
-            duration: 1.0, ease: 'power3.inOut'
-          }, '<0.015');
+            duration: 1.1, ease: 'power3.inOut'
+          }, label + '_clock+=0.015');
         });
 
         tl.to({}, { duration: 0.3 });
 
         // 2. METAMORFOSIS HACIA ISOTIPO
         tl.addLabel(label + '_morph');
-        tl.to('.clock-guides-main', { opacity: 0.15, duration: 0.4 }, '<');
+        tl.to('.clock-guides-main', { opacity: 0.15, duration: 0.4 }, label + '_morph');
 
         st.shapes.forEach(shape => {
-          tl.to('.g-' + shape.id, {
+          tl.to(\`#g-\${shape.id}\`, {
             x: shape.x, y: shape.y, rotation: shape.rotation,
             duration: 1.3, ease: 'power3.inOut'
           }, label + '_morph');
-          tl.to('.rect-' + shape.id, {
+          tl.to(\`#rect-\${shape.id}\`, {
             attr: {
               width: shape.width, height: shape.length,
               rx: shape.width / 2, ry: shape.width / 2
@@ -209,40 +231,40 @@ export function generateInlumenaiStandaloneHtml(
         tl.addLabel(label + '_return');
         tl.to('.clock-guides-main', {
           opacity: showTechnicalGuides ? 0.7 : 0, duration: 0.3
-        });
+        }, label + '_return');
 
         sortedShapes.forEach(shape => {
           const target = clockPos[shape.id];
-          tl.to('.g-' + shape.id, {
+          tl.to(\`#g-\${shape.id}\`, {
             x: target.x, y: target.y, rotation: 0,
             duration: 0.9, ease: 'power3.inOut'
-          }, '<0.01');
-          tl.to('.rect-' + shape.id, {
+          }, label + '_return+=0.01');
+          tl.to(\`#rect-\${shape.id}\`, {
             attr: {
               width: UNIT_M, height: UNIT_M,
               rx: UNIT_M / 2, ry: UNIT_M / 2
             },
             x: -UNIT_M / 2, y: -UNIT_M / 2,
             duration: 0.9, ease: 'power3.inOut'
-          }, '<');
+          }, label + '_return');
         });
 
         // 5. CONVERGENCIA CENTRAL
-        const nextLogo = logosToAnimate[(idx + 1) % logosToAnimate.length];
+        const nextLogo = RAW_DATA[(idx + 1) % RAW_DATA.length];
         tl.addLabel(label + '_collapse');
-        tl.to('.clock-guides-main', { opacity: 0.1, duration: 0.2 }, '<');
+        tl.to('.clock-guides-main', { opacity: 0.1, duration: 0.2 }, label + '_collapse');
 
         st.shapes.forEach(shape => {
           const nextShape = nextLogo.shapes.find((s) => s.id === shape.id) || shape;
-          tl.to('.g-' + shape.id, {
+          tl.to(\`#g-\${shape.id}\`, {
             x: TARGET_CENTER, y: TARGET_CENTER,
             duration: 0.7, ease: 'power3.inOut'
-          }, '<0.01');
-          tl.to('.rect-' + shape.id, {
-            fill: isWireframe ? 'transparent' : nextShape.color,
-            stroke: isWireframe ? nextShape.color : 'none',
+          }, label + '_collapse+=0.01');
+          tl.to(\`#rect-\${shape.id}\`, {
+            fill: IS_WIREFRAME ? 'transparent' : nextShape.color,
+            stroke: IS_WIREFRAME ? nextShape.color : 'none',
             duration: 0.7, ease: 'power3.inOut'
-          }, '<');
+          }, label + '_collapse');
         });
 
         tl.to({}, { duration: 0.15 });
