@@ -3,7 +3,8 @@ import { MatrixShape } from '../../types/matrix';
 import { 
   MoveUp, MoveDown, ArrowUpToLine, ArrowDownToLine, 
   Eye, EyeOff, Lock, Unlock, ArrowLeftRight, ArrowUpDown, 
-  RotateCw, Plus, Minus, RotateCcw, BoxSelect, Maximize, MousePointer2
+  RotateCw, Plus, Minus, RotateCcw, BoxSelect, Maximize, MousePointer2,
+  Trash2
 } from 'lucide-react';
 import { ShapeColorPicker } from '../common/ShapeColorPicker';
 
@@ -13,6 +14,7 @@ interface MatrixInspectorProps {
   onLayerChange: (action: 'front' | 'forward' | 'backward' | 'back') => void;
   onSnapToGrid: () => void;
   snapMode: number;
+  onDeleteSelected?: () => void;
 }
 
 export const MatrixInspector: React.FC<MatrixInspectorProps> = ({
@@ -20,13 +22,17 @@ export const MatrixInspector: React.FC<MatrixInspectorProps> = ({
   onUpdate,
   onLayerChange,
   onSnapToGrid,
-  snapMode
+  snapMode,
+  onDeleteSelected
 }) => {
   if (selectedShapes.length === 0) {
     return (
-      <div className="w-72 bg-[#171d22] border-l border-slate-700/50 p-4 flex flex-col h-full items-center justify-center text-slate-500 font-mono text-xs text-center z-20 relative">
-        <MousePointer2 className="w-8 h-8 mb-3 opacity-50" />
-        <p>Selecciona una o más formas<br/>para inspeccionar y modificar.</p>
+      <div className="w-[300px] shrink-0 flex-shrink-0 bg-[#171d22] border-l border-slate-700/50 p-4 flex flex-col h-full items-center justify-center text-slate-500 font-mono text-xs text-center z-20 relative select-none">
+        <div className="w-12 h-12 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-center mb-3 text-slate-400">
+          <MousePointer2 className="w-6 h-6 opacity-60" />
+        </div>
+        <p className="font-semibold text-slate-300">Ninguna Forma Seleccionada</p>
+        <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">Haz clic en una forma del lienzo<br/>para inspeccionar, transformar o eliminar.</p>
       </div>
     );
   }
@@ -39,18 +45,36 @@ export const MatrixInspector: React.FC<MatrixInspectorProps> = ({
   };
 
   return (
-    <div className="w-72 bg-[#171d22] border-l border-slate-700/50 flex flex-col h-full overflow-y-auto font-mono text-[11px] text-slate-300 z-20 relative shadow-[-10px_0_20px_rgba(0,0,0,0.2)]">
+    <div className="w-[300px] shrink-0 flex-shrink-0 bg-[#171d22] border-l border-slate-700/50 flex flex-col h-full overflow-y-auto font-mono text-[11px] text-slate-300 z-20 relative shadow-[-10px_0_20px_rgba(0,0,0,0.25)] custom-scrollbar">
       <div className="p-3 border-b border-slate-700/50 bg-[#1e262c] flex items-center justify-between sticky top-0 z-10 shadow-md">
-        <span className="font-bold text-emerald-400">
-          {isMulti ? `MÚLTIPLES (${selectedShapes.length})` : 'INSPECTOR'}
+        <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          {isMulti ? `MÚLTIPLES (${selectedShapes.length})` : 'INSPECTOR DE FORMA'}
         </span>
-        <div className="flex gap-1">
-           <button onClick={() => applyToAll({ hidden: !shape.hidden })} className={`p-1.5 hover:bg-slate-700 rounded text-slate-400 transition-colors ${shape.hidden ? 'bg-slate-800' : ''}`} title="Ocultar/Mostrar">
-             {shape.hidden ? <EyeOff size={14} className="text-emerald-400" /> : <Eye size={14} />}
-           </button>
-           <button onClick={() => applyToAll({ locked: !shape.locked })} className={`p-1.5 hover:bg-slate-700 rounded text-slate-400 transition-colors ${shape.locked ? 'bg-amber-500/20' : ''}`} title="Bloquear/Desbloquear">
-             {shape.locked ? <Lock size={14} className="text-amber-400" /> : <Unlock size={14} />}
-           </button>
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={() => applyToAll({ hidden: !shape.hidden })} 
+            className={`p-1.5 hover:bg-slate-700 rounded text-slate-400 transition-colors ${shape.hidden ? 'bg-slate-800 text-emerald-400' : 'hover:text-white'}`} 
+            title={shape.hidden ? 'Mostrar Forma' : 'Ocultar Forma'}
+          >
+            {shape.hidden ? <EyeOff size={14} className="text-emerald-400" /> : <Eye size={14} />}
+          </button>
+          <button 
+            onClick={() => applyToAll({ locked: !shape.locked })} 
+            className={`p-1.5 hover:bg-slate-700 rounded text-slate-400 transition-colors ${shape.locked ? 'bg-amber-500/20 text-amber-400' : 'hover:text-white'}`} 
+            title={shape.locked ? 'Desbloquear Forma' : 'Bloquear Forma'}
+          >
+            {shape.locked ? <Lock size={14} className="text-amber-400" /> : <Unlock size={14} />}
+          </button>
+          {onDeleteSelected && (
+            <button 
+              onClick={onDeleteSelected} 
+              className="p-1.5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded transition-colors ml-1 border border-transparent hover:border-red-500/40" 
+              title="Eliminar forma(s) seleccionada(s) (Supr / Backspace)"
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -211,6 +235,20 @@ export const MatrixInspector: React.FC<MatrixInspectorProps> = ({
              SNAP GLOBAL AL GRID
           </button>
         </div>
+
+        {/* Zona de Peligro / Eliminar Forma */}
+        {onDeleteSelected && (
+          <div className="pt-3 border-t border-slate-700/60 mt-1">
+            <button
+              onClick={onDeleteSelected}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/60 rounded-lg font-bold transition-all shadow-sm"
+              title="Eliminar forma seleccionada (o pulsa tecla Supr / Backspace)"
+            >
+              <Trash2 size={15} />
+              <span>{isMulti ? `ELIMINAR ${selectedShapes.length} FORMAS` : 'ELIMINAR FORMA'}</span>
+            </button>
+          </div>
+        )}
 
       </div>
     </div>

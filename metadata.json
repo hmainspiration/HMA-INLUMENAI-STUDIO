@@ -1,6 +1,6 @@
 {
   "name": "HMA INLUMENAI STUDIO",
-  "description": "Suite creativa de animación de isotipos: Secuenciador GSAP Motion y Compositor de capas vectoriales SVG con físicas dinámicas y grabador de video.",
+  "description": "Suite de composición y animación vectorial SVG: Matrix Studio con malla paramétrica desde 0.25X, secuenciador GSAP Motion e isotipos canónicos HMA Master.",
   "requestFramePermissions": ["display-capture"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
