@@ -1,5 +1,38 @@
 @import "tailwindcss";
 
+:root {
+  /* Fondos base universales */
+  --hma-base-luz: #FEFAE8;       /* Modo Positivo por defecto */
+  --hma-base-profundo: #060C04;  /* Modo Negativo */
+
+  /* Marca Madre / Imagination */
+  --hma-brand-luz: #3D80FD;
+  --hma-brand-profundo: #2D60C1;
+
+  /* Los 12 servicios (par Luz / Profundo) */
+  --hma-heritage-luz: #315629;       --hma-heritage-profundo: #1B3315;
+  --hma-melody-luz: #108591;         --hma-melody-profundo: #074349;
+  --hma-architecture-luz: #7D77B0;   --hma-architecture-profundo: #514B7D;
+  --hma-imagination-luz: #3D80FD;    --hma-imagination-profundo: #2D60C1;
+  --hma-narratives-luz: #C5A367;     --hma-narratives-profundo: #82600A;
+  --hma-lenses-luz: #052D63;         --hma-lenses-profundo: #031C3D;
+  --hma-underline-luz: #D96B43;      --hma-underline-profundo: #964222;
+  --hma-merchandise-luz: #D7BB11;    --hma-merchandise-profundo: #8C7907;
+  --hma-experiences-luz: #1D5B8F;    --hma-experiences-profundo: #1B3F67;
+  --hma-network-luz: #11D7B6;        --hma-network-profundo: #0A826E;
+  --hma-alphabets-luz: #AE7176;      --hma-alphabets-profundo: #77454A;
+  --hma-illustrations-luz: #75C962;  --hma-illustrations-profundo: #4B893C;
+
+  /* Espaciado base 8px */
+  --hma-space-1: 8px;  --hma-space-2: 16px; --hma-space-3: 24px;
+  --hma-space-4: 32px; --hma-space-6: 48px; --hma-space-8: 64px; --hma-space-12: 96px;
+
+  /* Radios */
+  --hma-radius-card: 12px;
+  --hma-radius-button: 9999px; /* pill */
+  --hma-radius-badge: 6px;
+}
+
 @theme {
   --color-brand-indigo: #000000;
   --color-brand-gold: #4A43DB;
@@ -20,6 +53,16 @@
   .canvas-bg {
     background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
     background-size: 24px 24px;
+  }
+  .picsart-checkered-bg {
+    background-color: #12161f;
+    background-image: 
+      linear-gradient(45deg, #1c212c 25%, transparent 25%),
+      linear-gradient(-45deg, #1c212c 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #1c212c 75%),
+      linear-gradient(-45deg, transparent 75%, #1c212c 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
   }
   .timeline-scrubber {
     background: linear-gradient(90deg, #3D80FD 0%, #3D80FD 45%, rgba(255, 255, 255, 0.1) 45%, rgba(255, 255, 255, 0.1) 100%);

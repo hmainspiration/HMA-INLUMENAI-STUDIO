@@ -184,13 +184,20 @@ export const DEFAULT_TECHNICAL_BOXES: TechnicalBox[] = [
 ];
 
 export interface ExportOptions {
-  dimensionMode: 'fullscreen' | '1080p' | 'square' | 'mobile' | 'custom';
+  dimensionMode: 'fullscreen' | '1080p' | 'square' | 'mobile' | 'hero' | 'custom';
   width: number;
   height: number;
   globalScale: number;
   includeBg: boolean;
   responsive: boolean;
   backgroundColor: string;
+  heroOptions?: {
+    fullBleed?: boolean;
+    transparentBg?: boolean;
+    centerAlignment?: 'center' | 'left' | 'right';
+    minHeightVh?: number;
+    seamlessEmbed?: boolean;
+  };
 }
 
 export interface Shape {

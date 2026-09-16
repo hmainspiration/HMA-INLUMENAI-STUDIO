@@ -115,8 +115,8 @@ ${shapesSvg}
 
   const handleExportJson = () => {
     const projectData: MatrixProjectData = {
-      version: '2026.40',
-      appName: 'Inlumenai Matrix Studio',
+      version: '3.0',
+      appName: 'INLUMENAI HIPERGRID',
       timestamp: Date.now(),
       shapes,
       gridSettings: {

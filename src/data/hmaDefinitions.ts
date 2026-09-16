@@ -1,5 +1,5 @@
 /**
- * HMA INLUMENAI STUDIO (v2026.40)
+ * INLUMENAI STUDIO (v3.0)
  * Geometric definitions, presets, canonical coordinates & chromatic rules.
  */
 import { HMAPiece, HMAPreset, PieceGeometry, ShapeType } from '../types/hma';
@@ -26,14 +26,14 @@ import {
 
 export const MODULE_PX = 67; // 1M = 67px
 export const RADIUS_PX = 33.5; // 0.5M = 33.5px
-export const APP_VERSION = 'v2026.40';
+export const APP_VERSION = 'v3.0';
 
 export const HMA_PRESETS: HMAPreset[] = [
   {
     id: "hma-master-diagonal",
-    name: "HMA MASTER (DIAGONAL)",
-    cluster: "Plantillas Oficiales",
-    description: "Plantilla oficial HMA MASTER (DIAGONAL)",
+    name: "COLOR (ISOTIPO BASE)",
+    cluster: "Marca Master",
+    description: "Plantilla oficial COLOR (ISOTIPO BASE)",
     colorLuz: "#3D80FD",
     colorProfundo: "#2D60C1",
     pieces: [

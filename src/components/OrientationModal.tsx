@@ -46,7 +46,7 @@ export const OrientationModal: React.FC<OrientationModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-extrabold text-white tracking-tight">
-                  Guía de Uso • Motion & Animation Studio
+                  Guía de Uso • INLUMENAI STUDIO
                 </h2>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
                   {APP_VERSION}

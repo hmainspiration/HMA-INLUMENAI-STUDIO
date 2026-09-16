@@ -1,11 +1,11 @@
 /**
- * HMA INLUMENAI STUDIO (v2026.40)
+ * INLUMENAI STUDIO (v3.0)
  * Unified Platform: Motion + Animated Canvas SVG
  * @license Apache-2.0
  */
 
 import React, { useState } from 'react';
-import { Film, Sparkles, HelpCircle } from 'lucide-react';
+import { Film, Sparkles, HelpCircle, FileCode, Layers, Home } from 'lucide-react';
 import { AppToolMode, GridSettings, HMAPiece, PaletteMode, AnimatedLayer } from './types/hma';
 import { LogoData } from './types';
 import {
@@ -32,6 +32,9 @@ export default function App() {
   const [showDashboard, setShowDashboard] = useState<boolean>(true);
   const [activePresetId, setActivePresetId] = useState<string>('hma-master');
   const [paletteMode, setPaletteMode] = useState<PaletteMode>('profundo');
+  const [projectName, setProjectName] = useState<string>('Proyecto 01 — Isotipo Maestro');
+  const [layerHistory, setLayerHistory] = useState<AnimatedLayer[][]>([]);
+  const [redoStack, setRedoStack] = useState<AnimatedLayer[][]>([]);
   const [showOrientationModal, setShowOrientationModal] = useState<boolean>(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
 
@@ -40,6 +43,37 @@ export default function App() {
     setTimeout(() => {
       setNotification(null);
     }, 4000);
+  };
+
+  const handleUndo = () => {
+    if (layerHistory.length === 0) {
+      showNotification('No hay más acciones por deshacer', 'info');
+      return;
+    }
+    const prev = layerHistory[layerHistory.length - 1];
+    setRedoStack((r) => [canvasLayers, ...r]);
+    setLayerHistory((h) => h.slice(0, h.length - 1));
+    setCanvasLayers(prev);
+    showNotification('Acción deshecha', 'info');
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length === 0) {
+      showNotification('No hay más acciones por rehacer', 'info');
+      return;
+    }
+    const next = redoStack[0];
+    setRedoStack((r) => r.slice(1));
+    setLayerHistory((h) => [...h, canvasLayers]);
+    setCanvasLayers(next);
+    showNotification('Acción rehecha', 'info');
+  };
+
+  const handleNewProject = () => {
+    handleResetCanvas();
+    const newName = `Proyecto ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    setProjectName(newName);
+    showNotification('Nuevo lienzo creado.');
   };
 
   // Active preset object
@@ -314,7 +348,7 @@ export default function App() {
 
         setCanvasLayers((prev) => [...prev, newLayer]);
         setActiveTool('canvas');
-        showNotification(`SVG "${file.name}" importado a Animation Canvas.`);
+        showNotification(`SVG "${file.name}" importado a Animation.`);
       } catch (err) {
         console.error('Error al cargar SVG:', err);
         showNotification('Error al leer el archivo SVG.', 'error');
@@ -374,7 +408,7 @@ export default function App() {
     <div 
       className="h-screen w-screen bg-[#000424] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200 overflow-hidden"
     >
-      {/* Universal Studio Header */}
+      {/* Universal Studio Header (Picsart-Inspired Desktop & Mobile Top Bar) */}
       <Header
         activeTool={activeTool}
         setActiveTool={setActiveTool}
@@ -390,12 +424,19 @@ export default function App() {
         onOpenOrientation={() => setShowOrientationModal(true)}
         onResetCanvas={handleResetCanvas}
         onOpenDashboard={() => setShowDashboard(true)}
+        projectName={projectName}
+        onUpdateProjectName={setProjectName}
+        onNewProject={handleNewProject}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        canUndo={layerHistory.length > 0}
+        canRedo={redoStack.length > 0}
       />
 
       {/* Floating Notification Toast */}
       {notification && (
         <div
-          className={`fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl border backdrop-blur-xl shadow-2xl flex items-center gap-2.5 text-xs font-mono animate-fadeIn ${
+          className={`fixed bottom-16 sm:bottom-6 right-4 sm:right-6 z-50 px-4 py-2.5 rounded-xl border backdrop-blur-xl shadow-2xl flex items-center gap-2.5 text-xs font-mono animate-fadeIn ${
             notification.type === 'error'
               ? 'bg-red-900/90 border-red-500/50 text-red-200'
               : notification.type === 'info'
@@ -409,7 +450,7 @@ export default function App() {
       )}
 
       {/* Main Integrated Views */}
-      <main className="flex-1 min-h-0 flex flex-col overflow-hidden relative">
+      <main className="flex-1 min-h-0 flex flex-col overflow-hidden relative pb-14 sm:pb-0">
         {/* Module 1: Matrix Studio */}
         {activeTool === 'matrix' && (
           <MatrixStudio
@@ -433,65 +474,71 @@ export default function App() {
         {activeTool === 'canvas' && (
           <AnimatedSvgCanvasEditor
             layers={canvasLayers}
-            setLayers={setCanvasLayers}
+            setLayers={(updater) => {
+              setCanvasLayers((prev) => {
+                const nextLayers = typeof updater === 'function' ? updater(prev) : updater;
+                setLayerHistory((h) => [...h.slice(-15), prev]);
+                setRedoStack([]);
+                return nextLayers;
+              });
+            }}
           />
         )}
       </main>
 
-      {/* Dedicated Mobile / Smartphone Bottom Navigation Bar */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#060C04]/95 border-t border-white/15 backdrop-blur-xl flex items-center justify-around py-1.5 px-2 shadow-2xl safe-area-pb">
+      {/* Picsart-Style Dedicated Mobile Bottom Navigation Bar (Thumb ergonomic >= 48px) */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 h-14 bg-[#060C04]/95 border-t border-white/10 backdrop-blur-2xl flex items-center justify-around px-2 shadow-2xl safe-area-pb select-none">
         <button
           onClick={() => setActiveTool('matrix')}
-          className={`flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono transition-all ${
+          className={`flex-1 h-full flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
             activeTool === 'matrix'
-              ? 'text-emerald-300 font-bold bg-emerald-950/60 border border-emerald-500/40'
+              ? 'text-emerald-400 font-bold'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <div className="relative">
-            <Sparkles className="w-4 h-4" />
-            <span className="absolute -top-1 -right-2 w-3 h-3 bg-emerald-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">1</span>
+          <div className={`p-1 rounded-lg ${activeTool === 'matrix' ? 'bg-emerald-500/20 text-emerald-300' : ''}`}>
+            <FileCode className="w-4 h-4" />
           </div>
-          <span>Matrix</span>
+          <span className="text-[10px] tracking-tight font-medium">Hipergrid</span>
         </button>
 
         <button
           onClick={() => setActiveTool('motion')}
-          className={`flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono transition-all ${
+          className={`flex-1 h-full flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
             activeTool === 'motion'
-              ? 'text-blue-300 font-bold bg-blue-950/60 border border-blue-500/40'
+              ? 'text-blue-400 font-bold'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <div className="relative">
+          <div className={`p-1 rounded-lg ${activeTool === 'motion' ? 'bg-blue-500/20 text-blue-300' : ''}`}>
             <Film className="w-4 h-4" />
-            <span className="absolute -top-1 -right-2 w-3 h-3 bg-blue-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">2</span>
           </div>
-          <span>Motion</span>
+          <span className="text-[10px] tracking-tight font-medium">Motion</span>
         </button>
 
         <button
           onClick={() => setActiveTool('canvas')}
-          className={`flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono transition-all ${
+          className={`flex-1 h-full flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
             activeTool === 'canvas'
-              ? 'text-purple-300 font-bold bg-purple-950/60 border border-purple-500/40'
+              ? 'text-purple-400 font-bold'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <div className="relative">
-            <Sparkles className="w-4 h-4" />
-            <span className="absolute -top-1 -right-2 w-3 h-3 bg-purple-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">3</span>
+          <div className={`p-1 rounded-lg ${activeTool === 'canvas' ? 'bg-purple-500/20 text-purple-300' : ''}`}>
+            <Layers className="w-4 h-4" />
           </div>
-          <span>Animation</span>
+          <span className="text-[10px] tracking-tight font-medium">Animation</span>
         </button>
 
         <button
           onClick={() => setShowDashboard(true)}
-          className="flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-mono text-slate-400 hover:text-[#3D80FD] transition-colors"
-          title="Ver selector inicial de secciones"
+          className="flex-1 h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-[#3D80FD] transition-all active:scale-95"
+          title="Ver selector de secciones"
         >
-          <HelpCircle className="w-4 h-4" />
-          <span>Secciones</span>
+          <div className="p-1 rounded-lg hover:bg-white/5">
+            <Home className="w-4 h-4" />
+          </div>
+          <span className="text-[10px] tracking-tight font-medium">Secciones</span>
         </button>
       </nav>
 
@@ -505,9 +552,9 @@ export default function App() {
             setActiveTool(section);
             setShowDashboard(false);
             const sectionNames = {
-              matrix: 'Matrix Studio (Retícula 11x11)',
-              motion: 'Inlumenai Motion (Secuenciador GSAP)',
-              canvas: 'Animation Canvas (Compositor Multicapa)'
+              matrix: 'Hipergrid (Malla Paramétrica 11x11)',
+              motion: 'Motion (Secuenciador GSAP)',
+              canvas: 'Animation (Compositor Multicapa)'
             };
             showNotification(`Sección activa: ${sectionNames[section] || section.toUpperCase()}`);
           }}

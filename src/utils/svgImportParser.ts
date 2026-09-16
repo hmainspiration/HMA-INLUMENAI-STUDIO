@@ -200,22 +200,94 @@ export function parseSvgToMatrixShapes(
 
     if (validPaths.length > 0) {
       warnings.push(
-        `Se encontraron ${validPaths.length} elementos vectoriales complejos (paths/círculos). Se han adaptado al formato modular de Matrix.`
+        `Se encontraron ${validPaths.length} elementos vectoriales complejos (paths/círculos). Se han aproximado sus dimensiones y posiciones originales.`
       );
 
+      // Tag elements to find them in the mounted DOM
+      validPaths.forEach((el, idx) => el.setAttribute('data-hma-import-idx', idx.toString()));
+
+      // We need to mount the SVG to the DOM to compute real bounding boxes
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.visibility = 'hidden';
+      tempContainer.style.pointerEvents = 'none';
+      tempContainer.style.top = '0px';
+      tempContainer.style.left = '0px';
+      
+      const clonedSvg = doc.documentElement.cloneNode(true) as SVGSVGElement;
+      
+      // Force the SVG to render at 1:1 scale (1 SVG unit = 1 pixel)
+      clonedSvg.setAttribute('width', `${vbWidth}px`);
+      clonedSvg.setAttribute('height', `${vbHeight}px`);
+      // Preserve the original viewBox if it exists, otherwise add one
+      if (!viewBox) {
+        clonedSvg.setAttribute('viewBox', `${vbMinX} ${vbMinY} ${vbWidth} ${vbHeight}`);
+      }
+
+      tempContainer.appendChild(clonedSvg);
+      document.body.appendChild(tempContainer);
+
+      const svgRect = clonedSvg.getBoundingClientRect();
+
       validPaths.forEach((el, idx) => {
-        const fill = el.getAttribute('fill') || options.defaultColor || '#0277bd';
+        let fill = el.getAttribute('fill');
+        if (!fill) {
+          let parent = el.parentElement;
+          while (parent && parent.tagName.toLowerCase() !== 'svg') {
+            const parentFill = parent.getAttribute('fill');
+            if (parentFill) {
+              fill = parentFill;
+              break;
+            }
+            parent = parent.parentElement;
+          }
+        }
+        fill = fill || options.defaultColor || '#0277bd';
+        
+        // Fallback generic grid positions if computation fails
+        let bboxX = 201 + (idx % 4) * 67;
+        let bboxY = 201 + Math.floor(idx / 4) * 67;
+        let bboxW = 2 * 67;
+        let bboxH = 1 * 67;
+
+        try {
+          const mountedEl = tempContainer.querySelector(`[data-hma-import-idx="${idx}"]`) as SVGGraphicsElement;
+          if (mountedEl) {
+            const elRect = mountedEl.getBoundingClientRect();
+            if (elRect.width > 0 && elRect.height > 0) {
+              // Calculate relative to SVG and account for viewBox offset
+              bboxX = (elRect.x - svgRect.x) + vbMinX;
+              bboxY = (elRect.y - svgRect.y) + vbMinY;
+              bboxW = elRect.width;
+              bboxH = elRect.height;
+              
+              // Handle Inlumenai Motion coordinates (offset to Matrix workspace)
+              if (sourceType === 'inlumenai_motion') {
+                bboxX = bboxX - 540 + 368.5;
+                bboxY = bboxY - 540 + 368.5;
+              }
+            }
+          }
+        } catch (e) {
+          // ignore getBoundingClientRect errors
+        }
+
+        let widthX = Math.max(0.25, Math.round((bboxW / UNIT) * 100) / 100);
+        let heightX = Math.max(0.25, Math.round((bboxH / UNIT) * 100) / 100);
+
         shapes.push({
           id: `shape-path-${Date.now()}-${idx + 1}`,
-          x: 201 + (idx % 4) * 67,
-          y: 201 + Math.floor(idx / 4) * 67,
-          widthX: 2,
-          heightX: 1,
-          rot: 0,
+          x: Math.round(bboxX * 10) / 10,
+          y: Math.round(bboxY * 10) / 10,
+          widthX,
+          heightX,
+          rot: 0, // Path internal geometry holds rotation, we treat as 0 bounding box
           color: fill === 'none' ? options.defaultColor || '#0277bd' : fill,
           wireframe: fill === 'none'
         });
       });
+
+      document.body.removeChild(tempContainer);
     }
   }
 

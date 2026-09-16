@@ -648,7 +648,7 @@ export const INITIAL_DATA: LogoData[] = [
 
   {
     serviceId: "hma-narrative",
-    serviceName: "HMA NARRATIVE",
+    serviceName: "HMA NARRATIVES",
     clusterName: "Oficial",
     luzColor: "#C5A367",
     profundoColor: "#82600A",

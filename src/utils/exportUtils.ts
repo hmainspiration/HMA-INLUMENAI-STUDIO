@@ -4,8 +4,9 @@
  */
 
 import { AnimatedLayer, BoundingBoxSize, HMAPiece, HMAProjectData } from '../types/hma';
+import { buildSvgPatternMarkup } from './patternUtils';
 import { APP_VERSION, getShapeSvgPath, MODULE_PX } from '../data/hmaDefinitions';
-import { TechnicalBox, DEFAULT_TECHNICAL_BOXES, CANVAS_CENTER } from '../types';
+import { TechnicalBox, DEFAULT_TECHNICAL_BOXES, CANVAS_CENTER, ExportOptions } from '../types';
 
 /**
  * Downloads a text or binary blob to the user's browser
@@ -217,7 +218,7 @@ ${piecesSvg}
   <!-- Bloque de Metadatos Técnico -->
   <g id="blueprint-metadata" transform="translate(${-half + 24}, ${half - 120})">
     <rect width="360" height="95" rx="6" fill="#060C04" stroke="#1e293b" stroke-width="1.5" />
-    <text x="16" y="24" fill="#06B6D4" font-size="14" font-weight="bold">HMA MATRIX STUDIO — BLUEPRINT TÉCNICO</text>
+    <text x="16" y="24" fill="#06B6D4" font-size="14" font-weight="bold">INLUMENAI HIPERGRID — BLUEPRINT TÉCNICO</text>
     <text x="16" y="44" fill="#94a3b8" font-size="11">PRESET: ${activePresetName.toUpperCase()} | VERSIÓN: ${APP_VERSION}</text>
     <text x="16" y="62" fill="#64748b" font-size="10">MÓDULO BASE: 1M = ${MODULE_PX}px | SUBRETÍCULA: 0.5M = 33.5px</text>
     <text x="16" y="80" fill="#64748b" font-size="10">FECHA: ${now} | SISTEMA PARAMÉTRICO DE 13 FORMAS</text>
@@ -316,18 +317,30 @@ export function generateAutonomousAnimatedHtml(
   layers: AnimatedLayer[],
   aspectRatio: '16:9' | '9:16' | '21:9' = '16:9',
   title = 'MOTION HMA MATRIX - Canvas Animado',
-  canvasBgColor = '#060C04'
+  canvasBgColor = '#060C04',
+  options?: Partial<ExportOptions>
 ): string {
-  let width = 1920;
-  let height = 1080;
+  const isHeroMode = options?.dimensionMode === 'hero';
+  let width = options?.width || 1920;
+  let height = options?.height || 1080;
   
-  if (aspectRatio === '9:16') {
-    width = 1080;
-    height = 1920;
+  if (isHeroMode) {
+    width = options?.width || 1920;
+    height = options?.height || 800;
+  } else if (aspectRatio === '9:16' || options?.dimensionMode === 'mobile') {
+    width = options?.width || 1080;
+    height = options?.height || 1920;
   } else if (aspectRatio === '21:9') {
-    width = 2560; // Standard 21:9 resolution width
+    width = options?.width || 2560;
+    height = options?.height || 1080;
+  } else if (options?.dimensionMode === 'square') {
+    width = 1080;
     height = 1080;
   }
+
+  const isTransparent = options?.includeBg === false || options?.heroOptions?.transparentBg || canvasBgColor === 'transparent';
+  const effectiveBg = isTransparent ? 'transparent' : (options?.backgroundColor || canvasBgColor || '#040915');
+  const globalScale = options?.globalScale && options.globalScale !== 1 ? options.globalScale : 1;
 
   const activeLayers = layers.filter((l) => l.visible && l.exportable);
   const hasMotionLayers = activeLayers.some(
@@ -374,26 +387,61 @@ export function generateAutonomousAnimatedHtml(
       const isHtmlIframe = l.animationType === 'html-iframe';
       const isPattern = !!l.isPattern;
       const color = l.color;
-      const getProcessedSvgCode = (code: string, c?: string) => {
-        if (!c) return code;
-        return code.replace(/fill="[^"]*"/g, `fill="${c}"`).replace(/stroke="[^"]*"/g, `stroke="${c}"`);
+      const getProcessedSvgCode = (code: string, c?: string, forPattern = false) => {
+        let processed = code;
+        if (c) {
+          processed = processed.replace(/fill=["'](?!none|transparent)([^"']*)["']/ig, `fill="${c}"`).replace(/stroke=["'](?!none|transparent)([^"']*)["']/ig, `stroke="${c}"`);
+        }
+        processed = processed.replace(/<svg([^>]*)>/i, (match, p1) => {
+          let attrs = p1;
+          const widthMatch = attrs.match(/\s+width=(["'])([^"']*)\1/i);
+          const heightMatch = attrs.match(/\s+height=(["'])([^"']*)\1/i);
+          const viewBoxMatch = attrs.match(/\s+viewBox=(["'])([^"']*)\1/i);
+          
+          let newAttrs = attrs
+            .replace(/\s+width=(["'])([^"']*)\1/i, '')
+            .replace(/\s+height=(["'])([^"']*)\1/i, '')
+            .replace(/\s+preserveAspectRatio=(["'])([^"']*)\1/i, '');
+            
+          if (!viewBoxMatch && widthMatch && heightMatch) {
+             const w = parseFloat(widthMatch[2]);
+             const h = parseFloat(heightMatch[2]);
+             if (!isNaN(w) && !isNaN(h)) {
+                newAttrs += ` viewBox="0 0 ${w} ${h}"`;
+             }
+          }
+          return `<svg${newAttrs} width="100%" height="100%" preserveAspectRatio="xMidYMid meet">`;
+        });
+        return processed;
       };
 
+      const isFullCanvas = isPattern && (l.patternFullCanvas !== false);
       const innerContent = isHtmlIframe
         ? `<iframe srcdoc="${l.svgCode.replace(/"/g, '&quot;')}" style="width: 100%; height: 100%; border: 0; pointer-events: none; ${l.wireframe ? 'opacity: 0.5;' : ''}" sandbox="allow-scripts allow-same-origin"></iframe>`
         : l.isPattern
-        ? `<svg width="100%" height="100%"><defs><pattern id="pat-${l.id}" width="${l.patternScale || 24}" height="${l.patternScale || 24}" patternUnits="userSpaceOnUse">${getProcessedSvgCode(l.svgCode, color)}</pattern></defs><rect width="100%" height="100%" fill="url(#pat-${l.id})"/></svg>`
+        ? buildSvgPatternMarkup({
+            id: `pat-${l.id}`,
+            svgCode: l.svgCode,
+            color: l.color,
+            baseSize: l.patternScale || 160,
+            gapX: l.patternGapX ?? 40,
+            gapY: l.patternGapY ?? 40,
+            itemScale: l.patternItemScale ?? 1.0,
+            itemRotation: l.patternItemRotation ?? 0,
+            stagger: !!l.patternStagger,
+            patternRotation: l.patternRotation ?? 0,
+          })
         : getProcessedSvgCode(l.svgCode, color);
 
       return `
     <!-- Layer: ${l.name} -->
     <div class="layer-item ${wireframeClass}" style="
       position: absolute;
-      left: ${isPattern ? '50%' : `calc(50% + ${l.x}px)`};
-      top: ${isPattern ? '50%' : `calc(50% + ${l.y}px)`};
-      width: ${isPattern ? '100%' : `${l.width}px`};
-      height: ${isPattern ? '100%' : `${l.height}px`};
-      transform: translate(-50%, -50%) rotate(${l.rotation}deg) scale(${l.scale ?? 1});
+      left: ${isFullCanvas ? '0' : `calc(50% + ${l.x}px)`};
+      top: ${isFullCanvas ? '0' : `calc(50% + ${l.y}px)`};
+      width: ${isFullCanvas ? '100%' : `${l.width}px`};
+      height: ${isFullCanvas ? '100%' : `${l.height}px`};
+      transform: ${isFullCanvas ? 'none' : `translate(-50%, -50%) rotate(${l.rotation}deg) scale(${l.scale ?? 1})`};
       opacity: ${l.opacity};
       filter: blur(${l.blur}px);
       mix-blend-mode: ${l.blendMode};
@@ -459,36 +507,79 @@ export function generateAutonomousAnimatedHtml(
   </script>`
     : '';
 
+  const heroComment = isHeroMode
+    ? `  <!--
+    ===================================================================
+    INLUMENAI BRAND - HERO WEB ANIMATION COMPONENT
+    Optimizado para Hero Header, Cabecera Web y Landing Pages.
+    - Ancho completo 100% responsivo
+    - Sin margenes ni scrollbars indeseados
+    - Fondo ${isTransparent ? 'transparente (ideal para superponer sobre disenos web)' : effectiveBg}
+    - Render vectorial SVG ultra-nitido para Retina y 4K
+    
+    INTEGRACION EN TU SITIO WEB:
+    1. Como iFrame:
+       <iframe src="HERO_WEB_ANIMATION.html" style="width:100%; height:80vh; border:none; overflow:hidden;" allowtransparency="true"></iframe>
+       
+    2. Como seccion HTML directa:
+       Copia el <div class="stage-container"> dentro de tu <header class="hero"> o contenedor principal.
+    ===================================================================
+  -->\n`
+    : '';
+
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} (${APP_VERSION})</title>
-  <style>
+${heroComment}  <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #040915;
+      background: ${effectiveBg};
       color: #f8fafc;
       font-family: system-ui, -apple-system, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      width: 100%;
       overflow: hidden;
     }
     .stage-container {
       position: relative;
-      width: ${width}px;
+      ${
+        isHeroMode
+          ? `width: 100%;
+      height: 100vh;
+      min-height: 100%;
+      background-color: ${effectiveBg};
+      border: none;
+      box-shadow: none;
+      border-radius: 0;`
+          : `width: ${width}px;
       height: ${height}px;
       max-width: 95vw;
       max-height: 95vh;
-      background-color: ${canvasBgColor};
+      background-color: ${effectiveBg};
       aspect-ratio: ${aspectRatio === '16:9' ? '16 / 9' : aspectRatio === '21:9' ? '21 / 9' : '9 / 16'};
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 40px rgba(6, 182, 212, 0.15);
-      border-radius: 12px;
+      border-radius: 12px;`
+      }
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .viewport-scaler {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      ${globalScale !== 1 ? `transform: scale(${globalScale}); transform-origin: center center;` : ''}
     }
     .layer-item svg {
       width: 100%;
@@ -534,7 +625,9 @@ export function generateAutonomousAnimatedHtml(
 </head>
 <body>
   <div class="stage-container">
+    <div class="viewport-scaler">
 ${layersHtml}
+    </div>
   </div>
   ${gsapScriptTag}
 </body>

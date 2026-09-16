@@ -119,6 +119,13 @@ export interface AnimatedLayer {
   isPattern: boolean;
   patternScale: number;
   patternSpacing: number;
+  patternGapX?: number; // Horizontal gap between items (px)
+  patternGapY?: number; // Vertical gap between items (px)
+  patternItemScale?: number; // Scale of the logo/item within the cell (0.1 to 2.5)
+  patternItemRotation?: number; // Rotation of item inside each cell (deg)
+  patternStagger?: boolean; // Brick / staggered rows layout
+  patternRotation?: number; // Tilt angle of the whole pattern grid (deg)
+  patternFullCanvas?: boolean; // True = covers entire canvas, False = layer box
   color?: string; // Hex color for SVG customization
   animationType: CanvasAnimationType;
   animDuration: number; // in seconds
@@ -175,3 +182,5 @@ export interface GridSettings {
   panX: number;
   panY: number;
 }
+
+export type MotionFinishMode = 'flat' | 'frosted' | 'prism' | 'caustic';

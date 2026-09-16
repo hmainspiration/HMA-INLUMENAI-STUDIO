@@ -29,7 +29,7 @@ export const HmaDashboard: React.FC<HmaDashboardProps> = ({
     {
       id: 'matrix',
       moduleNumber: 'MÓDULO 01',
-      title: 'MATRIX STUDIO',
+      title: 'HIPERGRID',
       badge: 'NUEVO • MALLA 0.25X',
       description: 'Lienzo paramétrico 11x11, malla horizontal y vertical desde 0.25X, paneles retráctiles para pantalla completa y gestor de formas canónicas.',
       icon: <Grid3X3 className="w-6 h-6 text-[#3D80FD]" />,
@@ -38,7 +38,7 @@ export const HmaDashboard: React.FC<HmaDashboardProps> = ({
     {
       id: 'motion',
       moduleNumber: 'MÓDULO 02',
-      title: 'INLUMENAI MOTION',
+      title: 'MOTION',
       description: 'Secuenciador cinético GSAP, interpolación orbital radial y animación procedural de isotipos canónicos.',
       icon: <Film className="w-6 h-6 text-[#3D80FD]" />,
       features: ['Línea de Tiempo GSAP', 'Interpolación Radial', 'Curvas de Aceleración']
@@ -46,7 +46,7 @@ export const HmaDashboard: React.FC<HmaDashboardProps> = ({
     {
       id: 'canvas',
       moduleNumber: 'MÓDULO 03',
-      title: 'ANIMATION CANVAS',
+      title: 'ANIMATION',
       description: 'Lienzo de capas SVG independientes, composición visual multicapa y render dinámico de video.',
       icon: <Layers className="w-6 h-6 text-[#3D80FD]" />,
       features: ['Capas SVG Múltiples', 'Exportador WebM / MP4', 'Control de Escena']
@@ -99,9 +99,9 @@ export const HmaDashboard: React.FC<HmaDashboardProps> = ({
             </div>
           </div>
 
-          {/* Título en estilo de la imagen: HMA_INLUMENAI v2026.40 */}
+          {/* Título: INLUMENAI STUDIO v3.0 */}
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-wide flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-            <span>HMA_INLUMENAI</span>
+            <span>INLUMENAI STUDIO</span>
             <span className="text-[#3D80FD] font-mono tracking-tight">
               {APP_VERSION}
             </span>

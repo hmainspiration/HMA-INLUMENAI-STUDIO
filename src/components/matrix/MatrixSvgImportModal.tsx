@@ -127,7 +127,7 @@ export const MatrixSvgImportModal: React.FC<MatrixSvgImportModalProps> = ({
               )}
             </div>
             <p className="text-xs text-slate-400">
-              Compatible con SVGs exportados de Matrix, Illustrator, Figma o Inlumenai Motion
+              Compatible con SVGs exportados de Hipergrid, Illustrator, Figma o Motion
             </p>
           </div>
 
@@ -227,9 +227,9 @@ export const MatrixSvgImportModal: React.FC<MatrixSvgImportModalProps> = ({
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
                   {parseResult.sourceType === 'matrix_native'
-                    ? 'Origen: Nativo Matrix'
+                    ? 'Origen: Nativo Hipergrid'
                     : parseResult.sourceType === 'inlumenai_motion'
-                    ? 'Origen: Inlumenai Motion'
+                    ? 'Origen: Motion'
                     : 'Origen: SVG Estándar'}
                 </span>
               </div>

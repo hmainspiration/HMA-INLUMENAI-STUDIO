@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { LogoData, Shape } from "../../types";
+import { MotionFinishMode } from "../../types/hma";
 import {
   X,
   Play,
@@ -16,6 +17,7 @@ interface AnimationPreviewModalProps {
   logos: LogoData[];
   initialIndex: number;
   onClose: () => void;
+  finishMode?: MotionFinishMode;
 }
 
 const TARGET_CENTER = 540;
@@ -50,6 +52,7 @@ export function AnimationPreviewModal({
   logos,
   initialIndex,
   onClose,
+  finishMode = 'flat',
 }: AnimationPreviewModalProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
@@ -73,6 +76,18 @@ export function AnimationPreviewModal({
       gsap.set(".master-rotation-group", { svgOrigin: "540 540" });
       gsap.set(".clock-guides", { opacity: 0 });
 
+      const strokeVal = isWireframe
+        ? null
+        : finishMode === 'caustic'
+        ? 'url(#hma-caustic-border-preview)'
+        : finishMode === 'prism'
+        ? 'url(#hma-prism-border-preview)'
+        : finishMode === 'frosted'
+        ? 'url(#hma-frosted-border-preview)'
+        : 'none';
+      const strokeW = isWireframe ? 2 : finishMode === 'caustic' ? 2.2 : finishMode === 'prism' ? 2 : finishMode === 'frosted' ? 1.5 : 0;
+      const fillOpacity = isWireframe ? 0 : finishMode === 'frosted' ? 0.84 : finishMode === 'prism' ? 0.88 : finishMode === 'caustic' ? 0.76 : 1;
+
       logos[0].shapes.forEach((shape) => {
         gsap.set(`.g-${shape.id}`, {
           x: TARGET_CENTER,
@@ -89,8 +104,9 @@ export function AnimationPreviewModal({
             ry: UNIT_M / 2,
           },
           fill: isWireframe ? "transparent" : "#3D80FD",
-          stroke: isWireframe ? "#3D80FD" : "none",
-          strokeWidth: isWireframe ? 2 : 0,
+          fillOpacity: fillOpacity,
+          stroke: isWireframe ? "#3D80FD" : strokeVal,
+          strokeWidth: strokeW,
           opacity: 0,
           scale: 0,
         });
@@ -163,8 +179,9 @@ export function AnimationPreviewModal({
             `.rect-${shape.id}`,
             {
               fill: isWireframe ? "transparent" : shape.color,
-              stroke: isWireframe ? shape.color : "none",
-              strokeWidth: isWireframe ? 2 : 0,
+              fillOpacity: fillOpacity,
+              stroke: isWireframe ? shape.color : strokeVal,
+              strokeWidth: strokeW,
               attr: {
                 width: UNIT_M,
                 height: UNIT_M,
@@ -299,7 +316,7 @@ export function AnimationPreviewModal({
     }, svgRef);
 
     return () => ctx.revert();
-  }, [logos, initialIndex, isWireframe, showTemplates]);
+  }, [logos, initialIndex, isWireframe, showTemplates, finishMode]);
 
   const togglePlay = () => {
     if (tl.current) {
@@ -482,6 +499,105 @@ export function AnimationPreviewModal({
                   strokeWidth="1"
                 />
               </pattern>
+
+              <linearGradient id="hma-prism-border-preview" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.9" />
+                <stop offset="20%" stopColor="#818CF8" stopOpacity="0.9" />
+                <stop offset="40%" stopColor="#C084FC" stopOpacity="0.9" />
+                <stop offset="60%" stopColor="#F472B6" stopOpacity="0.9" />
+                <stop offset="80%" stopColor="#FBBF24" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#34D399" stopOpacity="0.9" />
+              </linearGradient>
+
+              <linearGradient id="hma-frosted-border-preview" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
+                <stop offset="35%" stopColor="#FFFFFF" stopOpacity="0.25" />
+                <stop offset="70%" stopColor="#000000" stopOpacity="0.1" />
+                <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.5" />
+              </linearGradient>
+
+              <linearGradient id="hma-caustic-border-preview" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+                <stop offset="25%" stopColor="#7DD3FC" stopOpacity="0.8" />
+                <stop offset="50%" stopColor="#C084FC" stopOpacity="0.65" />
+                <stop offset="75%" stopColor="#38BDF8" stopOpacity="0.85" />
+                <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.95" />
+              </linearGradient>
+
+              <filter id="hma-frosted-glass-preview" x="-30%" y="-30%" width="160%" height="160%" colorInterpolationFilters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves={3} result="roughness" />
+                <feDisplacementMap in="SourceGraphic" in2="roughness" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+                <feGaussianBlur in="displaced" stdDeviation="1.2" result="blurred" />
+                <feSpecularLighting in="blurred" surfaceScale="4.5" specularConstant="1.6" specularExponent="22" lightingColor="#ffffff" result="specular">
+                  <feDistantLight azimuth={220} elevation={55} />
+                </feSpecularLighting>
+                <feComposite in="specular" in2="SourceAlpha" operator="in" result="specularBevel" />
+                <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="#000000" floodOpacity="0.4" result="shadow" />
+                <feMerge>
+                  <feMergeNode in="shadow" />
+                  <feMergeNode in="displaced" />
+                  <feMergeNode in="specularBevel" />
+                </feMerge>
+              </filter>
+
+              <filter id="hma-prism-chromatic-preview" x="-40%" y="-40%" width="180%" height="180%" colorInterpolationFilters="sRGB">
+                <feOffset in="SourceGraphic" dx="-2.8" dy="-1.8" result="redShift" />
+                <feColorMatrix in="redShift" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.9 0" result="redChannel" />
+                <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves={2} result="prismNoise" />
+                <feDisplacementMap in="SourceGraphic" in2="prismNoise" scale="3" xChannelSelector="R" yChannelSelector="B" result="greenDisplaced" />
+                <feColorMatrix in="greenDisplaced" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 0.95 0" result="greenChannel" />
+                <feOffset in="SourceGraphic" dx="2.8" dy="1.8" result="blueShift" />
+                <feColorMatrix in="blueShift" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 0.9 0" result="blueChannel" />
+                <feBlend in="redChannel" in2="greenChannel" mode="screen" result="rgBlend" />
+                <feBlend in="rgBlend" in2="blueChannel" mode="screen" result="chromaticBody" />
+                
+                <feGaussianBlur in="chromaticBody" stdDeviation="1.5" result="glintBlur" />
+                <feSpecularLighting in="glintBlur" surfaceScale="5.5" specularConstant="2.2" specularExponent="32" lightingColor="#ffffff" result="specularLight">
+                  <feDistantLight azimuth={225} elevation={65} />
+                </feSpecularLighting>
+                <feComposite in="specularLight" in2="SourceAlpha" operator="in" result="glintHighlight" />
+                
+                <feDropShadow dx="0" dy="8" stdDeviation="14" floodColor="#020617" floodOpacity="0.5" result="prismShadow" />
+                <feMerge>
+                  <feMergeNode in="prismShadow" />
+                  <feMergeNode in="chromaticBody" />
+                  <feMergeNode in="glintHighlight" />
+                </feMerge>
+              </filter>
+
+              <filter id="hma-crystal-caustic-preview" x="-45%" y="-45%" width="190%" height="190%" colorInterpolationFilters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves={2} result="lensNoise" />
+                <feDisplacementMap in="SourceGraphic" in2="lensNoise" scale="3.8" xChannelSelector="R" yChannelSelector="G" result="refractedBody" />
+                <feTurbulence type="turbulence" baseFrequency="0.065 0.08" numOctaves={3} result="causticTurbulence" />
+                <feColorMatrix in="causticTurbulence" type="matrix" values="0 0 0 0 0.25  0 0 0 0 0.85  0 0 0 0 1  3.8 3.8 3.8 0 -2.4" result="causticWebRaw" />
+                <feComposite in="causticWebRaw" in2="SourceAlpha" operator="in" result="causticWebClipped" />
+                <feGaussianBlur in="causticWebClipped" stdDeviation="0.8" result="causticWebGlow" />
+                <feOffset in="causticWebGlow" dx="-2.4" dy="-1.5" result="cRedShift" />
+                <feColorMatrix in="cRedShift" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.8 0" result="cRed" />
+                <feOffset in="causticWebGlow" dx="2.4" dy="1.5" result="cBlueShift" />
+                <feColorMatrix in="cBlueShift" type="matrix" values="0 0 0 0 0  0 0.7 0 0 0  0 0 1 0 0  0 0 0 0.85 0" result="cBlue" />
+                <feBlend in="cRed" in2="cBlue" mode="screen" result="causticDispersed" />
+                <feBlend in="causticDispersed" in2="causticWebGlow" mode="screen" result="causticFinal" />
+                <feGaussianBlur in="SourceAlpha" stdDeviation="1.8" result="alphaGlint" />
+                <feSpecularLighting in="alphaGlint" surfaceScale="6.5" specularConstant="2.4" specularExponent="36" lightingColor="#ffffff" result="specularKey">
+                  <feDistantLight azimuth={215} elevation={66} />
+                </feSpecularLighting>
+                <feComposite in="specularKey" in2="SourceAlpha" operator="in" result="specularKeyClipped" />
+                <feSpecularLighting in="alphaGlint" surfaceScale="3.8" specularConstant="1.4" specularExponent="24" lightingColor="#e0f2fe" result="specularRim">
+                  <feDistantLight azimuth={45} elevation={38} />
+                </feSpecularLighting>
+                <feComposite in="specularRim" in2="SourceAlpha" operator="in" result="specularRimClipped" />
+                <feDropShadow dx="0" dy="10" stdDeviation="16" floodColor="#0284c7" floodOpacity="0.42" result="causticGroundPool" />
+                <feDropShadow dx="0" dy="5" stdDeviation="8" floodColor="#020617" floodOpacity="0.55" result="contactShadow" />
+                <feMerge>
+                  <feMergeNode in="causticGroundPool" />
+                  <feMergeNode in="contactShadow" />
+                  <feMergeNode in="refractedBody" />
+                  <feMergeNode in="causticFinal" />
+                  <feMergeNode in="specularRimClipped" />
+                  <feMergeNode in="specularKeyClipped" />
+                </feMerge>
+              </filter>
             </defs>
 
             <g
@@ -522,25 +638,44 @@ export function AnimationPreviewModal({
               />
             </g>
 
-            <g className="clock-guides">
-              <circle
-                cx="540"
-                cy="540"
-                r="360"
-                fill="none"
-                className="stroke-teal-500"
-                strokeWidth="2"
-                opacity="0.4"
-                strokeDasharray="4 8"
-              />
-              {clockTicks}
-              <circle cx="540" cy="540" r="5" fill="#14E5C3" opacity="0.8" />
-            </g>
+            {showTemplates && (
+              <g
+                className="clock-guides"
+                style={{
+                  display: showTemplates ? 'inline' : 'none',
+                  visibility: showTemplates ? 'visible' : 'hidden'
+                }}
+              >
+                <circle
+                  cx="540"
+                  cy="540"
+                  r="360"
+                  fill="none"
+                  className="stroke-teal-500"
+                  strokeWidth="2"
+                  opacity="0.4"
+                  strokeDasharray="4 8"
+                />
+                {clockTicks}
+                <circle cx="540" cy="540" r="5" fill="#14E5C3" opacity="0.8" />
+              </g>
+            )}
 
             <g className="master-rotation-group">
               {logos[0].shapes.map((shape) => (
                 <g key={shape.id} className={`g-${shape.id}`}>
-                  <rect className={`rect-${shape.id}`} />
+                  <rect
+                    className={`rect-${shape.id}`}
+                    filter={
+                      finishMode === 'caustic'
+                        ? 'url(#hma-crystal-caustic-preview)'
+                        : finishMode === 'prism'
+                        ? 'url(#hma-prism-chromatic-preview)'
+                        : finishMode === 'frosted'
+                        ? 'url(#hma-frosted-glass-preview)'
+                        : undefined
+                    }
+                  />
                 </g>
               ))}
             </g>

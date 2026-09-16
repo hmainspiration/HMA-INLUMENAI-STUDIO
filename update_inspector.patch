@@ -1,0 +1,839 @@
+--- ./src/components/canvas/AnimatedSvgCanvasEditor.tsx
++++ ./src/components/canvas/AnimatedSvgCanvasEditor.tsx
+@@ -883,813 +883,18 @@
+       </main>
+ 
+-      {/* Mobile Backdrop for Right Panel */}
+-      {selectedLayer && isRightPanelOpen && (
+-        <div
+-          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-30 md:hidden"
+-          onClick={() => setIsRightPanelOpen(false)}
+-        />
+-      )}
+-
+-      {/* Right Physics & Layer Inspector */}
+-      {selectedLayer && isRightPanelOpen && (
+-        <aside className="fixed md:relative inset-y-0 right-0 z-40 md:z-auto w-84 max-w-[88vw] sm:max-w-xs border-l border-white/10 bg-[#060C04]/95 backdrop-blur-md p-4 flex flex-col h-[calc(100vh-4rem)] overflow-y-auto select-none space-y-4 shrink-0 shadow-2xl md:shadow-none">
+-          <div className="pb-3 border-b border-white/10 flex flex-col gap-2">
+-            <div className="flex items-center justify-between">
+-              <span className="text-[10px] font-mono uppercase text-purple-400 font-bold">
+-                Motor de Físicas & Capa
+-              </span>
+-              <div className="flex items-center gap-2">
+-                <button
+-                  onClick={() => setIsRightPanelOpen(false)}
+-                  title="Ocultar panel inspector"
+-                  className="p-1 rounded text-slate-400 hover:text-purple-300 hover:bg-white/10 transition-colors"
+-                >
+-                  <PanelRightClose className="w-3.5 h-3.5" />
+-                </button>
+-              </div>
+-            </div>
+-            
+-            <div className="flex items-center justify-between bg-black/40 border border-white/5 p-2 rounded-lg">
+-              <div className="flex items-center gap-2">
+-                <span className="text-[10px] font-mono text-slate-400">Fondo:</span>
+-                <input
+-                  type="color"
+-                  value={canvasBgColor}
+-                  onChange={(e) => setCanvasBgColor(e.target.value)}
+-                  className="w-5 h-5 rounded cursor-pointer border-0 bg-transparent p-0"
+-                />
+-              </div>
+-              <button
+-                onClick={() => {
+-                  const htmlCode = generateAutonomousAnimatedHtml(
+-                    layers,
+-                    aspectRatio,
+-                    'HMA Matrix Export',
+-                    canvasBgColor
+-                  );
+-                  downloadFile(htmlCode, `MOTION_HMA_EXPORT_${Date.now()}_${APP_VERSION}.html`, 'text/html');
+-                }}
+-                className="bg-green-500 hover:bg-green-400 text-black text-[10px] font-bold px-3 py-1 rounded shadow cursor-pointer transition-colors"
+-              >
+-                EXPORT HTML
+-              </button>
+-            </div>
+-
+-            <div className="flex items-center gap-2">
+-              <input
+-                type="text"
+-                value={selectedLayer.name}
+-                onChange={(e) => handleUpdateLayer({ name: e.target.value })}
+-                className="text-sm font-bold text-white truncate w-full bg-transparent border-b border-transparent focus:border-cyan-400 focus:outline-none"
+-              />
+-            </div>
+-
+-            {/* Copy / Apply Configuration Toolbar */}
+-            <div className="space-y-1.5 pt-1">
+-              <div className="grid grid-cols-2 gap-1.5 p-1 bg-black/40 rounded-lg border border-white/10">
+-                <button
+-                  type="button"
+-                  onClick={() => handleCopyLayerConfig(selectedLayer)}
+-                  className={`py-1.5 px-2 rounded font-mono text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+-                    copiedConfig?.sourceLayerId === selectedLayer.id
+-                      ? 'bg-purple-600/30 text-purple-200 border border-purple-500/50 shadow-sm'
+-                      : 'bg-white/5 hover:bg-purple-600/20 text-purple-300 hover:text-purple-100 border border-purple-500/20'
+-                  }`}
+-                  title="Copiar todas las físicas, dimensiones, escala, rotación, trama y filtros de esta capa"
+-                >
+-                  <Copy className="w-3.5 h-3.5 text-purple-400" />
+-                  <span>{copiedConfig?.sourceLayerId === selectedLayer.id ? 'Copiada ✓' : 'Copiar Config'}</span>
+-                </button>
+-
+-                <button
+-                  type="button"
+-                  onClick={() => handlePasteLayerConfig(selectedLayer.id)}
+-                  disabled={!copiedConfig}
+-                  className={`py-1.5 px-2 rounded font-mono text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+-                    copiedConfig
+-                      ? 'bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-400/40 shadow-sm hover:shadow-cyan-500/20'
+-                      : 'bg-white/5 text-slate-500 border border-white/5 cursor-not-allowed'
+-                  }`}
+-                  title={
+-                    copiedConfig
+-                      ? `Aplicar configuración de "${copiedConfig.sourceLayerName}" en esta capa`
+-                      : 'Copia primero la configuración de una capa para aplicarla aquí'
+-                  }
+-                >
+-                  <ClipboardPaste className="w-3.5 h-3.5 text-cyan-400" />
+-                  <span>Pegar Config</span>
+-                </button>
+-              </div>
+-
+-              {copiedConfig && (
+-                <div className="flex items-center justify-between px-2.5 py-1 bg-purple-950/40 border border-purple-500/30 rounded-lg text-[10px] font-mono text-purple-300">
+-                  <div className="flex items-center gap-1.5 truncate">
+-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+-                    <span className="truncate">
+-                      En portapapeles: <strong className="text-white">{copiedConfig.sourceLayerName}</strong>
+-                    </span>
+-                  </div>
+-                  <button
+-                    type="button"
+-                    onClick={() => setCopiedConfig(null)}
+-                    className="text-slate-400 hover:text-slate-200 text-[9px] underline ml-2 shrink-0 cursor-pointer"
+-                    title="Descartar configuración copiada"
+-                  >
+-                    Descartar
+-                  </button>
+-                </div>
+-              )}
+-            </div>
+-          </div>
+-
+-          {/* If Motion Layer, Display Motion Controls */}
+-          {(selectedLayer.isMotionSequence || selectedLayer.animationType === 'inlumenai-morph') ? (
+-            <div className="space-y-3 bg-gradient-to-br from-purple-950/40 to-blue-950/40 p-3.5 rounded-xl border border-purple-500/30">
+-              <span className="text-[10px] font-mono uppercase text-cyan-300 font-bold flex items-center gap-1.5">
+-                <Sparkles className="w-4 h-4 text-purple-400" />
+-                Secuencia Motion (GSAP)
+-              </span>
+-
+-              {/* Loop mode vs Specific Isotype */}
+-              <div className="space-y-1.5">
+-                <label className="text-[11px] font-mono text-slate-300 block">Modo de Secuencia:</label>
+-                <div className="grid grid-cols-2 gap-1.5 bg-black/40 p-1 rounded-lg border border-white/10">
+-                  <button
+-                    onClick={() =>
+-                      handleUpdateLayer({
+-                        motionServiceId: 'all',
+-                        motionIsLoop: true,
+-                        name: 'Secuencia Inlumenai (Ciclo 13)'
+-                      })
+-                    }
+-                    className={`py-1.5 px-2 rounded text-[11px] font-semibold transition-all ${
+-                      selectedLayer.motionServiceId === 'all'
+-                        ? 'bg-purple-600 text-white font-bold shadow'
+-                        : 'text-slate-400 hover:text-white'
+-                    }`}
+-                  >
+-                    Ciclo 13 en Loop
+-                  </button>
+-                  <button
+-                    onClick={() => {
+-                      const firstId = INITIAL_DATA[0].serviceId;
+-                      handleUpdateLayer({
+-                        motionServiceId: firstId,
+-                        motionIsLoop: false,
+-                        name: `Secuencia Inlumenai (${INITIAL_DATA[0].serviceName})`
+-                      });
+-                    }}
+-                    className={`py-1.5 px-2 rounded text-[11px] font-semibold transition-all ${
+-                      selectedLayer.motionServiceId !== 'all'
+-                        ? 'bg-purple-600 text-white font-bold shadow'
+-                        : 'text-slate-400 hover:text-white'
+-                    }`}
+-                  >
+-                    Isotipo Fijo
+-                  </button>
+-                </div>
+-              </div>
+-
+-              {/* Isotype Selector (when specific) */}
+-              {selectedLayer.motionServiceId !== 'all' && (
+-                <div>
+-                  <label className="text-[11px] font-mono text-slate-300 block mb-1">
+-                    Seleccionar Isotipo:
+-                  </label>
+-                  <select
+-                    value={selectedLayer.motionServiceId || INITIAL_DATA[0].serviceId}
+-                    onChange={(e) => {
+-                      const srv = INITIAL_DATA.find((s) => s.serviceId === e.target.value);
+-                      handleUpdateLayer({
+-                        motionServiceId: e.target.value,
+-                        name: `Secuencia Inlumenai (${srv?.serviceName || e.target.value})`
+-                      });
+-                    }}
+-                    className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-white/15 text-xs text-cyan-200 font-mono"
+-                  >
+-                    {INITIAL_DATA.map((s, idx) => (
+-                      <option key={s.serviceId} value={s.serviceId}>
+-                        {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}. {s.serviceName} ({s.clusterName})
+-                      </option>
+-                    ))}
+-                  </select>
+-                </div>
+-              )}
+-
+-              {/* Speed multiplier */}
+-              <div>
+-                <label className="text-[11px] font-mono text-slate-300 block mb-1">
+-                  Velocidad de Animación:
+-                </label>
+-                <div className="flex items-center gap-1">
+-                  {[0.5, 1, 1.5, 2].map((spd) => (
+-                    <button
+-                      key={spd}
+-                      onClick={() => handleUpdateLayer({ motionSpeed: spd })}
+-                      className={`flex-1 py-1 text-xs rounded font-mono font-bold transition-colors ${
+-                        (selectedLayer.motionSpeed || 1) === spd
+-                          ? 'bg-cyan-500 text-black'
+-                          : 'bg-black/30 text-slate-400 border border-white/10 hover:text-white'
+-                      }`}
+-                    >
+-                      {spd}x
+-                    </button>
+-                  ))}
+-                </div>
+-              </div>
+-
+-              {/* Clock Guides & Wireframe toggles */}
+-              <div className="pt-2 border-t border-white/10 space-y-2">
+-                <div className="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/10">
+-                  <div className="flex items-center gap-2">
+-                    <Compass className="w-3.5 h-3.5 text-cyan-400" />
+-                    <span className="text-xs text-slate-300">Guías Reloj (R=360px)</span>
+-                  </div>
+-                  <button
+-                    onClick={() =>
+-                      handleUpdateLayer({ motionShowGuides: !selectedLayer.motionShowGuides })
+-                    }
+-                    className={`px-2.5 py-0.5 rounded text-xs font-mono font-bold transition-colors ${
+-                      selectedLayer.motionShowGuides
+-                        ? 'bg-cyan-500 text-black'
+-                        : 'bg-slate-800 text-slate-400 border border-white/10'
+-                    }`}
+-                  >
+-                    {selectedLayer.motionShowGuides ? 'ON' : 'OFF'}
+-                  </button>
+-                </div>
+-
+-                <div className="flex items-center justify-between p-2 rounded-lg bg-black/30 border border-white/10">
+-                  <div className="flex items-center gap-2">
+-                    <Eye className="w-3.5 h-3.5 text-purple-400" />
+-                    <span className="text-xs text-slate-300">Modo Wireframe Técnico</span>
+-                  </div>
+-                  <button
+-                    onClick={() =>
+-                      handleUpdateLayer({
+-                        motionWireframe: !selectedLayer.motionWireframe,
+-                        wireframe: !selectedLayer.motionWireframe
+-                      })
+-                    }
+-                    className={`px-2.5 py-0.5 rounded text-xs font-mono font-bold transition-colors ${
+-                      selectedLayer.motionWireframe
+-                        ? 'bg-purple-500 text-black'
+-                        : 'bg-slate-800 text-slate-400 border border-white/10'
+-                    }`}
+-                  >
+-                    {selectedLayer.motionWireframe ? 'ON' : 'OFF'}
+-                  </button>
+-                </div>
+-              </div>
+-            </div>
+-          ) : (
+-            /* Standard CSS Physics Selector for Static SVG layers */
+-            <div className="space-y-2 bg-black/20 p-3 rounded-xl border border-white/5">
+-              <span className="text-[10px] font-mono uppercase text-slate-400 font-bold flex items-center gap-1">
+-                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+-                Física / Animación CSS
+-              </span>
+-
+-              <select
+-                value={selectedLayer.animationType}
+-                onChange={(e) =>
+-                  handleUpdateLayer({ animationType: e.target.value as CanvasAnimationType })
+-                }
+-                className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-white/15 text-xs text-slate-200 font-mono"
+-              >
+-                <option value="none">Sin Animación (Estático)</option>
+-                <option value="float">Float (Flotación Suave)</option>
+-                <option value="bounce">Bounce (Rebote Elástico)</option>
+-                <option value="pulse">Pulse (Latido & Escala)</option>
+-                <option value="spin">Spin (Rotación Continua 360°)</option>
+-                <option value="custom-path">Custom Path (Órbita Dinámica)</option>
+-                <option value="particle-dispersion">Particle Dispersion (Dispersión)</option>
+-                <option value="explosion">Explosion (Expansión Cinética)</option>
+-                <option value="mesh">Mesh (Deformación de Malla)</option>
+-                <option value="fluid">Fluid (Morfología Fluida)</option>
+-              </select>
+-
+-              {/* Dynamic CSS Param Sliders */}
+-              <div className="space-y-2 pt-2 border-t border-white/5">
+-                <div className="flex items-center justify-between text-[11px] font-mono text-slate-300">
+-                  <span>Duración ({selectedLayer.animDuration}s):</span>
+-                </div>
+-                <input
+-                  type="range"
+-                  min={0.5}
+-                  max={60}
+-                  step={0.5}
+-                  value={selectedLayer.animDuration}
+-                  onChange={(e) =>
+-                    handleUpdateLayer({ animDuration: parseFloat(e.target.value) })
+-                  }
+-                  className="w-full accent-purple-400 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+-                />
+-
+-                <div className="grid grid-cols-2 gap-3 pt-1">
+-                  <div>
+-                    <span className="text-[10px] font-mono text-slate-400 block mb-1">Offset X (px)</span>
+-                    <input
+-                      type="number"
+-                      value={selectedLayer.animX}
+-                      onChange={(e) => handleUpdateLayer({ animX: parseFloat(e.target.value) || 0 })}
+-                      className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-400 focus:outline-none"
+-                    />
+-                  </div>
+-                  <div>
+-                    <span className="text-[10px] font-mono text-slate-400 block mb-1">Offset Y (px)</span>
+-                    <input
+-                      type="number"
+-                      value={selectedLayer.animY}
+-                      onChange={(e) => handleUpdateLayer({ animY: parseFloat(e.target.value) || 0 })}
+-                      className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-400 focus:outline-none"
+-                    />
+-                  </div>
+-                </div>
+-              </div>
+-            </div>
+-          )}
+-
+-          {/* Size, Dimensions & Transformation controls */}
+-          <div className="space-y-3 bg-black/20 p-3 rounded-xl border border-white/5">
+-            <span className="text-[10px] font-mono uppercase text-slate-400 font-bold flex items-center gap-1 mb-2">
+-              <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
+-              Dimensiones & Transformación
+-            </span>
+-
+-            {/* Position and Scale Inputs */}
+-            <div className="grid grid-cols-2 gap-3">
+-              <div>
+-                <span className="text-[10px] font-mono text-slate-400 block mb-1">POS X</span>
+-                <input
+-                  type="number"
+-                  value={selectedLayer.x}
+-                  onChange={(e) => handleUpdateLayer({ x: parseFloat(e.target.value) || 0 })}
+-                  className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-400 focus:outline-none"
+-                />
+-              </div>
+-
+-              <div>
+-                <span className="text-[10px] font-mono text-slate-400 block mb-1">POS Y</span>
+-                <input
+-                  type="number"
+-                  value={selectedLayer.y}
+-                  onChange={(e) => handleUpdateLayer({ y: parseFloat(e.target.value) || 0 })}
+-                  className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-400 focus:outline-none"
+-                />
+-              </div>
+-
+-              <div>
+-                <span className="text-[10px] font-mono text-slate-400 block mb-1">ROTACIÓN (°)</span>
+-                <input
+-                  type="number"
+-                  value={selectedLayer.rotation}
+-                  onChange={(e) => handleUpdateLayer({ rotation: parseFloat(e.target.value) || 0 })}
+-                  className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-400 focus:outline-none"
+-                />
+-              </div>
+-
+-              <div>
+-                <span className="text-[10px] font-mono text-slate-400 flex justify-between mb-1">
+-                  <span>ESCALA</span>
+-                  <span className="text-cyan-300">
+-                    {(() => {
+-                      const s = selectedLayer.scale ?? 1;
+-                      if (s === 1) return 'Normal (1x)';
+-                      const display = s > 1 ? `+${(s - 1).toFixed(1)}` : `-${(1 / s - 1).toFixed(1)}`;
+-                      return `${display}x`;
+-                    })()}
+-                  </span>
+-                </span>
+-                <input
+-                  type="range"
+-                  min="-5"
+-                  max="5"
+-                  step="0.1"
+-                  value={(() => {
+-                    const s = selectedLayer.scale ?? 1;
+-                    return s >= 1 ? s - 1 : 1 - (1 / s);
+-                  })()}
+-                  onChange={(e) => {
+-                    const val = parseFloat(e.target.value);
+-                    const newScale = val >= 0 ? val + 1 : 1 / (1 - val);
+-                    handleUpdateLayer({ scale: newScale });
+-                  }}
+-                  className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-700 rounded-lg mt-2"
+-                />
+-              </div>
+-            </div>
+-
+-            {/* Quick Rotation Buttons */}
+-            <div className="flex justify-between items-center pt-1 border-t border-white/5">
+-              <button
+-                onClick={() => handleUpdateLayer({ rotation: (selectedLayer.rotation + 90) % 360 })}
+-                className="text-[10px] text-cyan-300 bg-black/40 px-2 py-1 rounded border border-white/5 hover:bg-white/10 transition-colors"
+-              >
+-                Rotar +90°
+-              </button>
+-              <button
+-                onClick={() => handleUpdateLayer({ rotation: 0 })}
+-                className="text-[10px] text-slate-400 bg-black/40 px-2 py-1 rounded border border-white/5 hover:bg-white/10 transition-colors"
+-              >
+-                Reset (0°)
+-              </button>
+-            </div>
+-
+-            {/* Width / Dimension Slider & Input */}
+-            <div className="pt-2 border-t border-white/5">
+-              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+-                <span>Ancho Base:</span>
+-                <span className="text-cyan-300 font-bold">{selectedLayer.width}px</span>
+-              </div>
+-              <input
+-                type="range"
+-                min={50}
+-                max={1500}
+-                step={10}
+-                value={selectedLayer.width}
+-                onChange={(e) => {
+-                  const w = parseInt(e.target.value, 10);
+-                  handleUpdateLayer({ width: w, height: w });
+-                }}
+-                className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+-              />
+-            </div>
+-          </div>
+-
+-          {/* Grid Pattern Generator */}
+-          <div className="space-y-3 bg-black/20 p-3 rounded-xl border border-white/5">
+-            <div className="flex items-center justify-between mb-1">
+-              <span className="text-[10px] font-mono uppercase text-slate-400 font-bold flex items-center gap-1.5">
+-                <Grid className="w-3.5 h-3.5 text-emerald-400" />
+-                Generador de Trama (Pattern)
+-              </span>
+-              {selectedLayer.isPattern && (
+-                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+-                  Activa
+-                </span>
+-              )}
+-            </div>
+-            
+-            <div className="flex items-center justify-between">
+-              <span className="text-[11px] font-mono text-slate-300">Convertir a Trama Infinita</span>
+-              <label className="relative inline-flex items-center cursor-pointer">
+-                <input
+-                  type="checkbox"
+-                  className="sr-only peer"
+-                  checked={!!selectedLayer.isPattern}
+-                  onChange={(e) => {
+-                    const isChecked = e.target.checked;
+-                    handleUpdateLayer({
+-                      isPattern: isChecked,
+-                      // Initialize with balanced defaults if missing or small
+-                      patternScale: selectedLayer.patternScale && selectedLayer.patternScale > 10 ? selectedLayer.patternScale : 160,
+-                      patternGapX: selectedLayer.patternGapX ?? 40,
+-                      patternGapY: selectedLayer.patternGapY ?? 40,
+-                      patternItemScale: selectedLayer.patternItemScale ?? 1.0,
+-                      patternItemRotation: selectedLayer.patternItemRotation ?? 0,
+-                      patternStagger: selectedLayer.patternStagger ?? false,
+-                      patternRotation: selectedLayer.patternRotation ?? 0,
+-                      patternFullCanvas: selectedLayer.patternFullCanvas !== undefined ? selectedLayer.patternFullCanvas : true
+-                    });
+-                  }}
+-                />
+-                <div className="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+-              </label>
+-            </div>
+-
+-            {selectedLayer.isPattern && (
+-              <div className="pt-2 border-t border-white/5 space-y-3.5">
+-                {/* 1. Cobertura del Área */}
+-                <div>
+-                  <span className="text-[10px] font-mono text-slate-400 block mb-1.5">Área de Cobertura:</span>
+-                  <div className="grid grid-cols-2 gap-1.5 p-1 bg-black/40 rounded-lg border border-white/10">
+-                    <button
+-                      type="button"
+-                      onClick={() => handleUpdateLayer({ patternFullCanvas: true })}
+-                      className={`text-[10px] py-1 px-2 rounded font-mono transition-all text-center ${
+-                        selectedLayer.patternFullCanvas !== false
+-                          ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
+-                          : 'text-slate-400 hover:text-slate-200'
+-                      }`}
+-                    >
+-                      Lienzo Completo
+-                    </button>
+-                    <button
+-                      type="button"
+-                      onClick={() => handleUpdateLayer({ patternFullCanvas: false })}
+-                      className={`text-[10px] py-1 px-2 rounded font-mono transition-all text-center ${
+-                        selectedLayer.patternFullCanvas === false
+-                          ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
+-                          : 'text-slate-400 hover:text-slate-200'
+-                      }`}
+-                    >
+-                      Caja de Capa
+-                    </button>
+-                  </div>
+-                </div>
+-
+-                {/* 2. Tamaño del Módulo / Cantidad y Densidad */}
+-                <div>
+-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+-                    <span>Tamaño Base (Densidad/Cantidad):</span>
+-                    <span className="text-emerald-300 font-bold font-mono">{selectedLayer.patternScale || 160}px</span>
+-                  </div>
+-                  <input
+-                    type="range"
+-                    min={40}
+-                    max={600}
+-                    step={5}
+-                    value={selectedLayer.patternScale || 160}
+-                    onChange={(e) => handleUpdateLayer({ patternScale: parseInt(e.target.value, 10) })}
+-                    className="w-full accent-emerald-400 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+-                  />
+-                  {/* Presets rápidos de densidad */}
+-                  <div className="flex justify-between items-center gap-1 mt-1.5">
+-                    <button
+-                      type="button"
+-                      onClick={() => handleUpdateLayer({ patternScale: 80 })}
+-                      className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-black/40 border border-white/10 text-slate-400 hover:text-emerald-300 hover:border-emerald-500/30"
+-                    >
+-                      80px (Densa)
+-                    </button>
+-                    <button
+-                      type="button"
+-                      onClick={() => handleUpdateLayer({ patternScale: 160 })}
+-                      className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-black/40 border border-white/10 text-slate-400 hover:text-emerald-300 hover:border-emerald-500/30"
+-                    >
+-                      160px (Media)
+-                    </button>
+-                    <button
+-                      type="button"
+-                      onClick={() => handleUpdateLayer({ patternScale: 280 })}
+-                      className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-black/40 border border-white/10 text-slate-400 hover:text-emerald-300 hover:border-emerald-500/30"
+-                    >
+-                      280px (Amplia)
+-                    </button>
+-                  </div>
+-                </div>
+-
+-                {/* 3. Escala interna del Logotipo dentro de su Celda */}
+-                <div>
+-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+-                    <span>Escala del Logo en Celda:</span>
+-                    <span className="text-cyan-300 font-bold font-mono">
+-                      {Math.round((selectedLayer.patternItemScale ?? 1.0) * 100)}% ({((selectedLayer.patternItemScale ?? 1.0)).toFixed(1)}x)
+-                    </span>
+-                  </div>
+-                  <input
+-                    type="range"
+-                    min={0.1}
+-                    max={2.5}
+-                    step={0.05}
+-                    value={selectedLayer.patternItemScale ?? 1.0}
+-                    onChange={(e) => handleUpdateLayer({ patternItemScale: parseFloat(e.target.value) })}
+-                    className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+-                  />
+-                  <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 mt-0.5">
+-                    <span>10% (Sutil / Aire)</span>
+-                    <button
+-                      type="button"
+-                      onClick={() => handleUpdateLayer({ patternItemScale: 1.0 })}
+-                      className="text-slate-400 hover:text-cyan-300 underline"
+-                    >
+-                      Restablecer 1.0x
+-                    </button>
+-                    <span>250% (Grande)</span>
+-                  </div>
+-                </div>
+-
+-                {/* 4. Separación / Espaciado (Gap X y Gap Y) */}
+-                <div className="pt-2 border-t border-white/5 space-y-2">
+-                  <div className="flex items-center justify-between">
+-                    <span className="text-[10px] font-mono text-slate-400">Espaciado entre Elementos:</span>
+-                    <button
+-                      type="button"
+-                      onClick={() => setLinkGaps(!linkGaps)}
+-                      className={`flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded border transition-colors ${
+-                        linkGaps
+-                          ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+-                          : 'bg-black/30 text-slate-400 border-white/10 hover:text-slate-200'
+-                      }`}
+-                      title={linkGaps ? 'Desvincular X e Y' : 'Vincular X e Y'}
+-                    >
+-                      {linkGaps ? <Link2 className="w-3 h-3" /> : <Unlink className="w-3 h-3" />}
+-                      <span>{linkGaps ? 'X/Y Vinculados' : 'X/Y Separados'}</span>
+-                    </button>
+-                  </div>
+-
+-                  {/* Gap X */}
+-                  <div>
+-                    <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+-                      <span>Espacio Horizontal (Gap X):</span>
+-                      <span className="text-emerald-300 font-bold font-mono">{selectedLayer.patternGapX ?? 40}px</span>
+-                    </div>
+-                    <input
+-                      type="range"
+-                      min={0}
+-                      max={300}
+-                      step={2}
+-                      value={selectedLayer.patternGapX ?? 40}
+-                      onChange={(e) => {
+-                        const val = parseInt(e.target.value, 10);
+-                        handleUpdateLayer({
+-                          patternGapX: val,
+-                          ...(linkGaps ? { patternGapY: val } : {})
+-                        });
+-                      }}
+-                      className="w-full accent-emerald-400 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+-                    />
+-                  </div>
+-
+-                  {/* Gap Y */}
+-                  <div>
+-                    <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
+-                      <span>Espacio Vertical (Gap Y):</span>
+-                      <span className="text-emerald-300 font-bold font-mono">{selectedLayer.patternGapY ?? 40}px</span>
+-                    </div>
+-                    <input
+-                      type="range"
+-                      min={0}
+-                      max={300}
+-                      step={2}
+-                      value={selectedLayer.patternGapY ?? 40}
+-                      onChange={(e) => {
+-                        const val = parseInt(e.target.value, 10);
+-                        handleUpdateLayer({
+-                          patternGapY: val,
+-                          ...(linkGaps ? { patternGapX: val } : {})
+-                        });
+-                      }}
+-                      className="w-full accent-emerald-400 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+-                    />
+-                  </div>
+-                </div>
+-
+-                {/* 5. Disposición (Grid vs Ladrillo/Stagger) */}
+-                <div className="pt-2 border-t border-white/5">
+-                  <span className="text-[10px] font-mono text-slate-400 block mb-1.5">Distribución de Filas:</span>
+-                  <div className="grid grid-cols-2 gap-1.5 p-1 bg-black/40 rounded-lg border border-white/10">
+-                    <button
+-                      type="button"
+-                      onClick={() => handleUpdateLayer({ patternStagger: false })}
+-                      className={`text-[10px] py-1 px-2 rounded font-mono transition-all text-center ${
+-                        !selectedLayer.patternStagger
+-                          ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
+-                          : 'text-slate-400 hover:text-slate-200'
+-                      }`}
+-                    >
+-                      Cuadrícula Recta
+-                    </button>
+-                    <button
+-                      type="button"
+-                      onClick={() => handleUpdateLayer({ patternStagger: true })}
+-                      className={`text-[10px] py-1 px-2 rounded font-mono transition-all text-center ${
+-                        !!selectedLayer.patternStagger
+-                          ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
+-                          : 'text-slate-400 hover:text-slate-200'
+-                      }`}
+-                    >
+-                      Ladrillo (50% Offset)
+-                    </button>
+-                  </div>
+-                </div>
+-
+-                {/* 6. Inclinación y Rotación */}
+-                <div className="pt-2 border-t border-white/5 space-y-2">
+-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+-                    <span>Ángulo de la Trama:</span>
+-                    <span className="text-cyan-300 font-bold font-mono">{selectedLayer.patternRotation ?? 0}°</span>
+-                  </div>
+-                  <div className="flex items-center gap-1">
+-                    {[0, 15, 30, 45, -45].map((angle) => (
+-                      <button
+-                        key={angle}
+-                        type="button"
+-                        onClick={() => handleUpdateLayer({ patternRotation: angle })}
+-                        className={`flex-1 text-[9px] py-1 rounded font-mono border transition-all ${
+-                          (selectedLayer.patternRotation ?? 0) === angle
+-                            ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-bold'
+-                            : 'bg-black/40 text-slate-400 border-white/10 hover:text-slate-200'
+-                        }`}
+-                      >
+-                        {angle}°
+-                      </button>
+-                    ))}
+-                  </div>
+-
+-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-1">
+-                    <span>Rotación del Elemento:</span>
+-                    <span className="text-slate-300 font-mono">{selectedLayer.patternItemRotation ?? 0}°</span>
+-                  </div>
+-                  <div className="flex items-center gap-1">
+-                    {[0, 90, 180, 270].map((angle) => (
+-                      <button
+-                        key={angle}
+-                        type="button"
+-                        onClick={() => handleUpdateLayer({ patternItemRotation: angle })}
+-                        className={`flex-1 text-[9px] py-1 rounded font-mono border transition-all ${
+-                          (selectedLayer.patternItemRotation ?? 0) === angle
+-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-bold'
+-                            : 'bg-black/40 text-slate-400 border-white/10 hover:text-slate-200'
+-                        }`}
+-                      >
+-                        {angle}°
+-                      </button>
+-                    ))}
+-                  </div>
+-                </div>
+-              </div>
+-            )}
+-          </div>
+-
+-          {/* Visual Effects & Blend Modes */}
+-          <div className="space-y-3 bg-black/20 p-3 rounded-xl border border-white/5">
+-            <span className="text-[10px] font-mono uppercase text-slate-400 font-bold flex items-center gap-1">
+-              <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+-              Filtros & Modo de Fusión
+-            </span>
+-
+-            {/* Blend Mode */}
+-            <div>
+-              <span className="text-[11px] font-mono text-slate-300 mb-1 block">Modo de Fusión:</span>
+-              <select
+-                value={selectedLayer.blendMode}
+-                onChange={(e) => handleUpdateLayer({ blendMode: e.target.value as BlendMode })}
+-                className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-white/15 text-xs text-slate-200 font-mono"
+-              >
+-                <option value="normal">Normal</option>
+-                <option value="screen">Screen (Trama Luminosa)</option>
+-                <option value="multiply">Multiply (Multiplicar)</option>
+-                <option value="overlay">Overlay (Superponer)</option>
+-                <option value="color-dodge">Color Dodge (Sobreexposición)</option>
+-                <option value="luminosity">Luminosity (Luminosidad)</option>
+-                <option value="difference">Difference (Diferencia)</option>
+-              </select>
+-            </div>
+-
+-            {/* Opacity */}
+-            <div>
+-              <div className="flex items-center justify-between text-[11px] font-mono text-slate-300">
+-                <span>Opacidad:</span>
+-                <span className="text-cyan-300">{Math.round(selectedLayer.opacity * 100)}%</span>
+-              </div>
+-              <input
+-                type="range"
+-                min={0}
+-                max={1}
+-                step={0.05}
+-                value={selectedLayer.opacity}
+-                onChange={(e) => handleUpdateLayer({ opacity: parseFloat(e.target.value) })}
+-                className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+-              />
+-            </div>
+-
+-            {/* Blur */}
+-            <div>
+-              <div className="flex items-center justify-between text-[11px] font-mono text-slate-300">
+-                <span>Desenfoque (Blur):</span>
+-                <span className="text-purple-300">{selectedLayer.blur}px</span>
+-              </div>
+-              <input
+-                type="range"
+-                min={0}
+-                max={150}
+-                step={1}
+-                value={selectedLayer.blur}
+-                onChange={(e) => handleUpdateLayer({ blur: parseInt(e.target.value, 10) })}
+-                className="w-full accent-purple-400 cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+-              />
+-            </div>
+-
+-            {/* Color Customization */}
+-            {selectedLayer.animationType !== 'html-iframe' && !selectedLayer.isMotionSequence && selectedLayer.animationType !== 'inlumenai-morph' && (
+-              <div className="pt-2 border-t border-white/5">
+-                <ShapeColorPicker
+-                  currentColor={selectedLayer.color || '#FFFFFF'}
+-                  onChangeColor={(color) => handleUpdateLayer({ color })}
+-                  wireframe={selectedLayer.wireframe}
+-                  onToggleWireframe={(wireframe) => handleUpdateLayer({ wireframe })}
+-                />
+-              </div>
+-            )}
+-          </div>
+-
+-          {/* Actions */}
+-          <div className="grid grid-cols-2 gap-2 pt-2">
+-            <button
+-              onClick={() => handleDuplicateLayer(selectedLayer.id)}
+-              className="py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 border border-white/10 transition-colors"
+-            >
+-              <Copy className="w-3.5 h-3.5 text-cyan-400" />
+-              <span>Duplicar</span>
+-            </button>
+-
+-            <button
+-              onClick={() => handleDeleteLayer(selectedLayer.id)}
+-              className="py-2 px-3 rounded-lg bg-red-900/30 hover:bg-red-900/60 text-red-300 text-xs font-semibold flex items-center justify-center gap-1.5 border border-red-500/30 transition-colors"
+-            >
+-              <Trash2 className="w-3.5 h-3.5 text-red-400" />
+-              <span>Eliminar</span>
+-            </button>
+-          </div>
+-        </aside>
+-      )}
++      <RightInspectorPanel
++        selectedLayer={selectedLayer || null}
++        isOpen={isRightPanelOpen}
++        onToggleOpen={() => setIsRightPanelOpen((prev) => !prev)}
++        canvasBgColor={canvasBgColor}
++        onSetCanvasBgColor={setCanvasBgColor}
++        layers={layers}
++        aspectRatio={aspectRatio}
++        onUpdateLayer={handleUpdateLayer}
++        onCopyLayerConfig={handleCopyLayerConfig}
++        onPasteLayerConfig={handlePasteLayerConfig}
++        copiedConfig={copiedConfig}
++        onSetCopiedConfig={setCopiedConfig}
++        linkGaps={linkGaps}
++        onSetLinkGaps={setLinkGaps}
++        onDuplicateLayer={handleDuplicateLayer}
++        onDeleteLayer={handleDeleteLayer}
++      />
+ 
+       {/* Paste SVG Raw Code Modal */}
+       {showPasteModal && (

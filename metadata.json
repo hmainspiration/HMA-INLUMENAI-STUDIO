@@ -1,6 +1,6 @@
 {
-  "name": "HMA INLUMENAI STUDIO",
-  "description": "Suite de composición y animación vectorial SVG: Matrix Studio con malla paramétrica desde 0.25X, secuenciador GSAP Motion e isotipos canónicos HMA Master.",
+  "name": "INLUMENAI STUDIO",
+  "description": "INLUMENAI STUDIO v3.0: Suite de composición y animación vectorial SVG con Hipergrid (malla paramétrica desde 0.25X), secuenciador cinético Motion y compositor multicapa Animation.",
   "requestFramePermissions": ["display-capture"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
