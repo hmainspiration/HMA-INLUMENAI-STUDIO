@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -21,11 +21,23 @@ import {
   Video,
   Monitor,
   Smartphone,
-  Maximize2
+  Maximize2,
+  Save,
+  Bookmark,
+  FolderOpen,
+  Download,
+  Clock
 } from 'lucide-react';
 import { LeftRailTab } from './LeftToolRail';
 import { AnimatedLayer } from '../../types/hma';
 import { INITIAL_DATA } from '../../data/canonicalLogos';
+import {
+  CustomTemplate,
+  getSavedTemplates,
+  deleteCustomTemplate,
+  exportTemplateToJson,
+  saveCustomTemplate
+} from '../../utils/templateStorage';
 
 interface LeftToolDrawerProps {
   activeTab: LeftRailTab;
@@ -47,6 +59,8 @@ interface LeftToolDrawerProps {
   copiedConfig: any;
   onCopyConfig: (layer: AnimatedLayer) => void;
   onPasteConfig: (targetId: string) => void;
+  onOpenSaveTemplateModal?: () => void;
+  onLoadCustomTemplate?: (template: CustomTemplate) => void;
 }
 
 // 12 Canonical HMA Services
@@ -84,8 +98,54 @@ export const LeftToolDrawer: React.FC<LeftToolDrawerProps> = ({
   onOpenExportModal,
   copiedConfig,
   onCopyConfig,
-  onPasteConfig
+  onPasteConfig,
+  onOpenSaveTemplateModal,
+  onLoadCustomTemplate
 }) => {
+  // Custom Templates State
+  const [librarySubTab, setLibrarySubTab] = useState<'services' | 'custom'>('services');
+  const [customTemplates, setCustomTemplates] = useState<CustomTemplate[]>(() => getSavedTemplates());
+
+  const refreshTemplates = () => {
+    setCustomTemplates(getSavedTemplates());
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      refreshTemplates();
+    }
+  }, [isOpen]);
+
+  const handleImportJsonFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (parsed.layers && Array.isArray(parsed.layers)) {
+          const saved = saveCustomTemplate({
+            name: parsed.name || file.name.replace('.json', ''),
+            description: parsed.description,
+            canvasBgColor: parsed.canvasBgColor || '#060C04',
+            aspectRatio: parsed.aspectRatio || '16:9',
+            layers: parsed.layers,
+            pieces: parsed.pieces || [],
+            paletteMode: parsed.paletteMode || 'profundo'
+          });
+          refreshTemplates();
+          if (onLoadCustomTemplate) {
+            onLoadCustomTemplate(saved);
+          }
+        }
+      } catch (err) {
+        console.error('Error importing template JSON:', err);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   // Text Tool State
   const [textContent, setTextContent] = useState('HMA INLUMENAI');
   const [selectedFont, setSelectedFont] = useState<'Aeonik' | 'Dosis' | 'General Sans' | 'Newsreader'>('Aeonik');
@@ -200,47 +260,207 @@ export const LeftToolDrawer: React.FC<LeftToolDrawerProps> = ({
 
       {/* Drawer Content Views */}
       <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
-        {/* VIEW 1: BIBLIOTECA (12 Servicios HMA) */}
+        {/* VIEW 1: BIBLIOTECA (12 Servicios HMA + Mis Plantillas Guardadas) */}
         {activeTab === 'library' && (
           <div className="space-y-3">
-            <div className="p-2.5 rounded-xl bg-blue-950/20 border border-blue-500/20 text-[11px] text-blue-200">
-              Selecciona una de las 12 disciplinas para inyectar su isotipo o secuencia en el lienzo de trabajo.
+            {/* Sub-tab switcher */}
+            <div className="flex p-1 rounded-xl bg-slate-900 border border-white/10 gap-1 text-[11px] font-semibold">
+              <button
+                onClick={() => setLibrarySubTab('services')}
+                className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  librarySubTab === 'services'
+                    ? 'bg-[#3D80FD] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Library className="w-3.5 h-3.5" />
+                <span>12 Servicios HMA</span>
+              </button>
+              <button
+                onClick={() => {
+                  refreshTemplates();
+                  setLibrarySubTab('custom');
+                }}
+                className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  librarySubTab === 'custom'
+                    ? 'bg-[#3D80FD] text-white shadow-md'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Bookmark className="w-3.5 h-3.5" />
+                <span>Mis Plantillas ({customTemplates.length})</span>
+              </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-2">
-              {HMA_SERVICES.map((srv) => (
-                <div
-                  key={srv.name}
-                  className="p-2.5 rounded-xl border border-white/10 bg-slate-900/40 hover:bg-slate-800/60 hover:border-white/20 transition-all flex items-center justify-between group"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm font-mono"
-                      style={{ backgroundColor: srv.profundo, border: `2px solid ${srv.luz}` }}
-                    >
-                      {srv.code}
-                    </span>
-                    <div>
-                      <div className="text-xs font-bold text-white group-hover:text-[#3D80FD] transition-colors">
-                        {srv.name}
-                      </div>
-                      <div className="text-[10px] text-slate-400 truncate max-w-[150px]">
-                        {srv.desc}
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => handleInsertService(srv)}
-                    className="p-1.5 px-2 rounded-lg bg-white/5 hover:bg-[#3D80FD] text-slate-300 hover:text-white text-[10px] font-semibold transition-colors flex items-center gap-1"
-                    title={`Añadir secuencia ${srv.name} al lienzo`}
-                  >
-                    <Plus className="w-3 h-3" />
-                    <span>Añadir</span>
-                  </button>
+            {/* TAB CONTENT: 12 CANONICAL SERVICES */}
+            {librarySubTab === 'services' && (
+              <div className="space-y-2.5 animate-fadeIn">
+                <div className="p-2.5 rounded-xl bg-blue-950/20 border border-blue-500/20 text-[11px] text-blue-200">
+                  Selecciona una de las 12 disciplinas para inyectar su isotipo o secuencia en el lienzo de trabajo.
                 </div>
-              ))}
-            </div>
+
+                <div className="grid grid-cols-1 gap-2">
+                  {HMA_SERVICES.map((srv) => (
+                    <div
+                      key={srv.name}
+                      className="p-2.5 rounded-xl border border-white/10 bg-slate-900/40 hover:bg-slate-800/60 hover:border-white/20 transition-all flex items-center justify-between group"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm font-mono"
+                          style={{ backgroundColor: srv.profundo, border: `2px solid ${srv.luz}` }}
+                        >
+                          {srv.code}
+                        </span>
+                        <div>
+                          <div className="text-xs font-bold text-white group-hover:text-[#3D80FD] transition-colors">
+                            {srv.name}
+                          </div>
+                          <div className="text-[10px] text-slate-400 truncate max-w-[150px]">
+                            {srv.desc}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleInsertService(srv)}
+                        className="p-1.5 px-2 rounded-lg bg-white/5 hover:bg-[#3D80FD] text-slate-300 hover:text-white text-[10px] font-semibold transition-colors flex items-center gap-1 cursor-pointer"
+                        title={`Añadir secuencia ${srv.name} al lienzo`}
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>Añadir</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB CONTENT: MIS PLANTILLAS GUARDADAS */}
+            {librarySubTab === 'custom' && (
+              <div className="space-y-3 animate-fadeIn">
+                {/* Actions: Save Current & Import */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={onOpenSaveTemplateModal}
+                    className="py-2 px-2.5 rounded-xl bg-gradient-to-r from-[#3D80FD] to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-blue-500/20 active:scale-95 transition-all cursor-pointer"
+                    title="Guardar capas, colores y físicas actuales"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    <span>Guardar Actual</span>
+                  </button>
+
+                  <label className="py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center justify-center gap-1.5 border border-white/10 transition-colors cursor-pointer">
+                    <FolderOpen className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Importar JSON</span>
+                    <input
+                      type="file"
+                      accept=".json,application/json"
+                      onChange={handleImportJsonFile}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {/* Templates List */}
+                {customTemplates.length === 0 ? (
+                  <div className="p-5 rounded-2xl border border-dashed border-white/15 bg-slate-900/40 text-center space-y-2">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/10 text-[#3D80FD] flex items-center justify-center mx-auto border border-[#3D80FD]/20">
+                      <Bookmark className="w-5 h-5" />
+                    </div>
+                    <div className="text-xs font-bold text-slate-200">
+                      No tienes plantillas guardadas aún
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Diseña tus capas, formas y animaciones en el lienzo y pulsa <strong className="text-slate-200">&quot;Guardar Actual&quot;</strong> para conservarla permanentemente.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {customTemplates.map((tmpl) => (
+                      <div
+                        key={tmpl.id}
+                        className="p-3 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-slate-800/80 transition-all space-y-2"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="text-xs font-bold text-white tracking-tight">
+                              {tmpl.name}
+                            </div>
+                            <div className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                              <Clock className="w-3 h-3 text-slate-500" />
+                              <span>{new Date(tmpl.createdAt).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                              <span className="text-slate-600">•</span>
+                              <span className="font-mono text-[#3D80FD]">{tmpl.layers.length} capas</span>
+                            </div>
+                          </div>
+
+                          {/* Preview color dots */}
+                          <div className="flex items-center gap-1 shrink-0 pt-0.5">
+                            {tmpl.previewColors.slice(0, 3).map((col, idx) => (
+                              <span
+                                key={idx}
+                                className="w-3.5 h-3.5 rounded-full border border-white/20 shadow-sm"
+                                style={{ backgroundColor: col }}
+                                title={col}
+                              />
+                            ))}
+                          </div>
+                        </div>
+
+                        {tmpl.description && (
+                          <div className="text-[10px] text-slate-400 line-clamp-1 italic">
+                            &quot;{tmpl.description}&quot;
+                          </div>
+                        )}
+
+                        {/* Action buttons */}
+                        <div className="flex items-center justify-between pt-1 border-t border-white/5">
+                          <button
+                            onClick={() => {
+                              if (onLoadCustomTemplate) {
+                                onLoadCustomTemplate(tmpl);
+                              } else {
+                                onSetLayers(tmpl.layers);
+                                if (tmpl.canvasBgColor) onSetCanvasBgColor(tmpl.canvasBgColor);
+                                if (tmpl.aspectRatio) onSetAspectRatio(tmpl.aspectRatio);
+                              }
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-[#3D80FD]/20 hover:bg-[#3D80FD] text-[#3D80FD] hover:text-white text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                            title="Cargar esta plantilla en el lienzo"
+                          >
+                            <Sparkles className="w-3 h-3" />
+                            <span>Cargar en Lienzo</span>
+                          </button>
+
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => exportTemplateToJson(tmpl)}
+                              className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                              title="Descargar copia en JSON"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`¿Eliminar la plantilla "${tmpl.name}"?`)) {
+                                  deleteCustomTemplate(tmpl.id);
+                                  refreshTemplates();
+                                }
+                              }}
+                              className="p-1 rounded-md text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                              title="Eliminar plantilla"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

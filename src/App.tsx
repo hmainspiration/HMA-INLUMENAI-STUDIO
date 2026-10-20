@@ -4,7 +4,7 @@
  * @license Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Film, Sparkles, HelpCircle, FileCode, Layers, Home } from 'lucide-react';
 import { AppToolMode, GridSettings, HMAPiece, PaletteMode, AnimatedLayer } from './types/hma';
 import { LogoData } from './types';
@@ -20,12 +20,18 @@ import { AnimatedSvgCanvasEditor } from './components/canvas/AnimatedSvgCanvasEd
 import { MatrixStudio } from './components/matrix/MatrixStudio';
 import { OrientationModal } from './components/OrientationModal';
 import { HmaDashboard } from './components/dashboard/HmaDashboard';
+import { SaveTemplateModal } from './components/modals/SaveTemplateModal';
 import {
   downloadFile,
   exportHighResPng,
   exportProjectJson,
   generateCleanSvg
 } from './utils/exportUtils';
+import {
+  loadActiveDraft,
+  saveActiveDraft,
+  CustomTemplate
+} from './utils/templateStorage';
 
 export default function App() {
   const [activeTool, setActiveTool] = useState<AppToolMode>('matrix');
@@ -80,20 +86,8 @@ export default function App() {
   const activePreset =
     HMA_PRESETS.find((p) => p.id === activePresetId) || HMA_PRESETS[0];
 
-  // Pieces state (initial clone from active preset for Motion sequences)
-  const [pieces, setPieces] = useState<HMAPiece[]>(() => [...activePreset.pieces]);
-
-  const [customLogos, setCustomLogos] = useState<LogoData[]>([]);
-
-  // Transfer Isotype from Matrix to Motion
-  const handleSendMatrixToMotion = (logo: LogoData) => {
-    setCustomLogos((prev) => [...prev, logo]);
-    setActiveTool('motion');
-    showNotification(`Isotipo "${logo.serviceName}" transferido a Motion exitosamente.`);
-  };
-
-  // Animated Canvas layers state with default initial layers
-  const [canvasLayers, setCanvasLayers] = useState<AnimatedLayer[]>([
+  // Default canvas layers for new sessions
+  const DEFAULT_CANVAS_LAYERS: AnimatedLayer[] = [
     {
       id: 'layer-profundo',
       name: 'Profundo',
@@ -175,7 +169,67 @@ export default function App() {
       exportable: true,
       zIndex: 3
     }
-  ]);
+  ];
+
+  // Pieces state (initial clone or restored from active draft)
+  const [pieces, setPieces] = useState<HMAPiece[]>(() => {
+    const draft = loadActiveDraft();
+    if (draft && draft.pieces && draft.pieces.length > 0) {
+      return draft.pieces;
+    }
+    return [...activePreset.pieces];
+  });
+
+  const [customLogos, setCustomLogos] = useState<LogoData[]>([]);
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
+
+  // Transfer Isotype from Matrix to Motion
+  const handleSendMatrixToMotion = (logo: LogoData) => {
+    setCustomLogos((prev) => [...prev, logo]);
+    setActiveTool('motion');
+    showNotification(`Isotipo "${logo.serviceName}" transferido a Motion exitosamente.`);
+  };
+
+  // Animated Canvas layers state (restored from active draft if user reloads page)
+  const [canvasLayers, setCanvasLayers] = useState<AnimatedLayer[]>(() => {
+    const draft = loadActiveDraft();
+    if (draft && draft.canvasLayers && draft.canvasLayers.length > 0) {
+      return draft.canvasLayers;
+    }
+    return DEFAULT_CANVAS_LAYERS;
+  });
+
+  // Auto-guardado continuo en LocalStorage para no perder cambios nunca
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      saveActiveDraft({
+        projectName,
+        activePresetId,
+        paletteMode,
+        canvasBgColor: '#060C04',
+        aspectRatio: '16:9',
+        canvasLayers,
+        pieces
+      });
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [canvasLayers, pieces, activePresetId, paletteMode, projectName]);
+
+  // Carga integral de plantilla personalizada
+  const handleLoadCustomTemplate = (template: CustomTemplate) => {
+    if (template.layers && template.layers.length > 0) {
+      setCanvasLayers(template.layers);
+    }
+    if (template.pieces && template.pieces.length > 0) {
+      setPieces(template.pieces);
+    }
+    if (template.paletteMode) {
+      setPaletteMode(template.paletteMode);
+    }
+    setProjectName(template.name);
+    setActiveTool('canvas');
+    showNotification(`Plantilla "${template.name}" cargada en el lienzo.`);
+  };
 
   // Change preset handler
   const handleSelectPreset = (presetId: string) => {
@@ -431,6 +485,8 @@ export default function App() {
         onRedo={handleRedo}
         canUndo={layerHistory.length > 0}
         canRedo={redoStack.length > 0}
+        onOpenSaveTemplateModal={() => setIsSaveTemplateModalOpen(true)}
+        onLoadCustomTemplate={handleLoadCustomTemplate}
       />
 
       {/* Floating Notification Toast */}
@@ -566,6 +622,19 @@ export default function App() {
         isOpen={showOrientationModal}
         onClose={() => setShowOrientationModal(false)}
         onSelectTool={(tool) => setActiveTool(tool)}
+      />
+
+      {/* Save Template Modal */}
+      <SaveTemplateModal
+        isOpen={isSaveTemplateModalOpen}
+        onClose={() => setIsSaveTemplateModalOpen(false)}
+        layers={canvasLayers}
+        pieces={pieces}
+        paletteMode={paletteMode}
+        defaultName={projectName}
+        onTemplateSaved={(saved) => {
+          showNotification(`Plantilla "${saved.name}" guardada con éxito.`);
+        }}
       />
     </div>
   );

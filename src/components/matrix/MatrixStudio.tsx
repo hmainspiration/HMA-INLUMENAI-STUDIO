@@ -32,9 +32,9 @@ export const MatrixStudio: React.FC<MatrixStudioProps> = ({ paletteMode, onSendT
   const selectedShapeId = selectedShapeIds.length === 1 ? selectedShapeIds[0] : null;
   const [zoom, setZoom] = useState(1);
 
-  // Estados de paneles desplegables y pantalla completa
-  const [leftPanelOpen, setLeftPanelOpen] = useState(true);
-  const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  // Estados de paneles desplegables y pantalla completa (ocultos por defecto hasta activación)
+  const [leftPanelOpen, setLeftPanelOpen] = useState(false);
+  const [rightPanelOpen, setRightPanelOpen] = useState(false);
 
   // Malla base y guías
   const [showMainGrid, setShowMainGrid] = useState(true);

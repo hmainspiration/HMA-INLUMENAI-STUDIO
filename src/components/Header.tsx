@@ -27,17 +27,23 @@ import {
   User,
   Plus,
   Sliders,
-  Maximize2,
-  SlidersHorizontal,
-  Layers,
-  Palette,
   Check,
   X,
-  Edit2
+  Edit2,
+  Bookmark,
+  Trash2,
+  Clock,
+  Maximize2
 } from 'lucide-react';
 import { AppToolMode, PaletteMode } from '../types/hma';
 import { APP_VERSION, HMA_PRESETS } from '../data/hmaDefinitions';
 import { HmaMasterIcon } from './HmaMasterIcon';
+import {
+  CustomTemplate,
+  getSavedTemplates,
+  deleteCustomTemplate,
+  exportTemplateToJson
+} from '../utils/templateStorage';
 
 interface HeaderProps {
   activeTool: AppToolMode;
@@ -61,6 +67,8 @@ interface HeaderProps {
   onRedo?: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
+  onOpenSaveTemplateModal?: () => void;
+  onLoadCustomTemplate?: (template: CustomTemplate) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -84,10 +92,14 @@ export const Header: React.FC<HeaderProps> = ({
   onUndo,
   onRedo,
   canUndo = true,
-  canRedo = false
+  canRedo = false,
+  onOpenSaveTemplateModal,
+  onLoadCustomTemplate
 }) => {
   const [exportOpen, setExportOpen] = useState(false);
   const [presetDropdownOpen, setPresetDropdownOpen] = useState(false);
+  const [presetTab, setPresetTab] = useState<'canonical' | 'custom'>('canonical');
+  const [customTemplates, setCustomTemplates] = useState<CustomTemplate[]>(() => getSavedTemplates());
   const [importMenuOpen, setImportMenuOpen] = useState(false);
   const [presetSearch, setPresetSearch] = useState('');
   const [selectedClusterFilter, setSelectedClusterFilter] = useState<string>('todos');
@@ -97,6 +109,13 @@ export const Header: React.FC<HeaderProps> = ({
   const presetDropdownRef = useRef<HTMLDivElement>(null);
   const exportDropdownRef = useRef<HTMLDivElement>(null);
   const importDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Sync templates on open
+  useEffect(() => {
+    if (presetDropdownOpen) {
+      setCustomTemplates(getSavedTemplates());
+    }
+  }, [presetDropdownOpen]);
 
   // Sync tempTitle when projectName prop changes
   useEffect(() => {
@@ -382,6 +401,18 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
+          {/* Quick Save Template Button */}
+          {onOpenSaveTemplateModal && (
+            <button
+              onClick={onOpenSaveTemplateModal}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#3D80FD]/20 hover:bg-[#3D80FD] text-[#3D80FD] hover:text-white text-xs font-semibold border border-[#3D80FD]/30 transition-all shadow-sm cursor-pointer"
+              title="Guardar estado actual como plantilla personalizada"
+            >
+              <Bookmark className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">Guardar</span>
+            </button>
+          )}
+
           {/* Import SVG & JSON Dropdown */}
           <div className="relative" ref={importDropdownRef}>
             <button
@@ -554,87 +585,205 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {presetDropdownOpen && (
-              <div className="absolute left-0 mt-1.5 w-84 max-h-[440px] overflow-hidden rounded-2xl bg-[#060C04] border border-white/15 shadow-2xl z-50 backdrop-blur-xl flex flex-col animate-fadeIn">
-                <div className="p-2.5 border-b border-white/10 bg-slate-900/60 space-y-2">
-                  <div className="flex items-center justify-between text-[11px] font-mono text-cyan-300 font-bold uppercase">
-                    <span>13 Isotipos Canónicos & Variantes</span>
-                    <span className="text-[9px] text-slate-400">{HMA_PRESETS.length} Plantillas</span>
-                  </div>
-
-                  <div className="relative">
-                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
-                    <input
-                      type="text"
-                      placeholder="Buscar plantilla..."
-                      value={presetSearch}
-                      onChange={(e) => setPresetSearch(e.target.value)}
-                      className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-
-                  <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none text-[10px]">
-                    {clusters.map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => setSelectedClusterFilter(c.id)}
-                        className={`px-2 py-0.5 rounded whitespace-nowrap transition-colors ${
-                          selectedClusterFilter === c.id
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 font-bold'
-                            : 'bg-white/5 text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        {c.name}
-                      </button>
-                    ))}
-                  </div>
+              <div className="absolute left-0 mt-1.5 w-84 max-h-[460px] overflow-hidden rounded-2xl bg-[#060C04] border border-white/15 shadow-2xl z-50 backdrop-blur-xl flex flex-col animate-fadeIn">
+                {/* Tab Switcher: Canónicos vs Mis Plantillas */}
+                <div className="flex p-1.5 bg-slate-900/90 border-b border-white/10 gap-1 text-[11px] font-semibold">
+                  <button
+                    onClick={() => setPresetTab('canonical')}
+                    className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      presetTab === 'canonical'
+                        ? 'bg-[#3D80FD] text-white shadow-md'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span>13 Canónicos</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCustomTemplates(getSavedTemplates());
+                      setPresetTab('custom');
+                    }}
+                    className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      presetTab === 'custom'
+                        ? 'bg-[#3D80FD] text-white shadow-md'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Bookmark className="w-3.5 h-3.5" />
+                    <span>Mis Plantillas ({customTemplates.length})</span>
+                  </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin scrollbar-thumb-slate-700 max-h-64">
-                  {filteredPresets.length === 0 ? (
-                    <p className="text-xs text-slate-400 p-4 text-center">
-                      No se encontraron plantillas.
-                    </p>
-                  ) : (
-                    filteredPresets.map((preset) => (
+                {presetTab === 'canonical' ? (
+                  <>
+                    <div className="p-2.5 border-b border-white/10 bg-slate-900/60 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] font-mono text-cyan-300 font-bold uppercase">
+                        <span>13 Isotipos Canónicos & Variantes</span>
+                        <span className="text-[9px] text-slate-400">{HMA_PRESETS.length} Plantillas</span>
+                      </div>
+
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
+                        <input
+                          type="text"
+                          placeholder="Buscar plantilla..."
+                          value={presetSearch}
+                          onChange={(e) => setPresetSearch(e.target.value)}
+                          className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"
+                        />
+                      </div>
+
+                      <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none text-[10px]">
+                        {clusters.map((c) => (
+                          <button
+                            key={c.id}
+                            onClick={() => setSelectedClusterFilter(c.id)}
+                            className={`px-2 py-0.5 rounded whitespace-nowrap transition-colors cursor-pointer ${
+                              selectedClusterFilter === c.id
+                                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 font-bold'
+                                : 'bg-white/5 text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            {c.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin scrollbar-thumb-slate-700 max-h-64">
+                      {filteredPresets.length === 0 ? (
+                        <p className="text-xs text-slate-400 p-4 text-center">
+                          No se encontraron plantillas.
+                        </p>
+                      ) : (
+                        filteredPresets.map((preset) => (
+                          <button
+                            key={preset.id}
+                            onClick={() => {
+                              onSelectPreset(preset.id);
+                              setPresetDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-2.5 py-2 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                              preset.id === activePresetId
+                                ? 'bg-cyan-500/20 text-cyan-200 font-semibold border border-cyan-500/40 shadow-sm'
+                                : 'text-slate-300 hover:bg-slate-800/80 border border-transparent'
+                            }`}
+                          >
+                            <div className="truncate pr-2">
+                              <div className="flex items-center gap-1.5">
+                                <span>{preset.name}</span>
+                                {preset.id === activePresetId && (
+                                  <CheckCircle className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                                )}
+                              </div>
+                              <div className="text-[10px] text-slate-400 truncate mt-0.5">
+                                {preset.description}
+                              </div>
+                            </div>
+                            <div className="flex gap-1 ml-2 shrink-0">
+                              <span
+                                className="w-3 h-3 rounded-full border border-white/20"
+                                style={{ backgroundColor: preset.colorLuz }}
+                                title={`Color Luz: ${preset.colorLuz}`}
+                              />
+                              <span
+                                className="w-3 h-3 rounded-full border border-white/20"
+                                style={{ backgroundColor: preset.colorProfundo }}
+                                title={`Color Profundo: ${preset.colorProfundo}`}
+                              />
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-2.5 space-y-2.5 max-h-72 overflow-y-auto">
+                    {onOpenSaveTemplateModal && (
                       <button
-                        key={preset.id}
                         onClick={() => {
-                          onSelectPreset(preset.id);
                           setPresetDropdownOpen(false);
+                          onOpenSaveTemplateModal();
                         }}
-                        className={`w-full text-left px-2.5 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
-                          preset.id === activePresetId
-                            ? 'bg-cyan-500/20 text-cyan-200 font-semibold border border-cyan-500/40 shadow-sm'
-                            : 'text-slate-300 hover:bg-slate-800/80 border border-transparent'
-                        }`}
+                        className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-[#3D80FD] to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-blue-500/20 active:scale-98 transition-all cursor-pointer"
                       >
-                        <div className="truncate pr-2">
-                          <div className="flex items-center gap-1.5">
-                            <span>{preset.name}</span>
-                            {preset.id === activePresetId && (
-                              <CheckCircle className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                            )}
-                          </div>
-                          <div className="text-[10px] text-slate-400 truncate mt-0.5">
-                            {preset.description}
-                          </div>
-                        </div>
-                        <div className="flex gap-1 ml-2 shrink-0">
-                          <span
-                            className="w-3 h-3 rounded-full border border-white/20"
-                            style={{ backgroundColor: preset.colorLuz }}
-                            title={`Color Luz: ${preset.colorLuz}`}
-                          />
-                          <span
-                            className="w-3 h-3 rounded-full border border-white/20"
-                            style={{ backgroundColor: preset.colorProfundo }}
-                            title={`Color Profundo: ${preset.colorProfundo}`}
-                          />
-                        </div>
+                        <Bookmark className="w-3.5 h-3.5" />
+                        <span>+ Guardar Plantilla Actual</span>
                       </button>
-                    ))
-                  )}
-                </div>
+                    )}
+
+                    {customTemplates.length === 0 ? (
+                      <div className="p-5 text-center text-xs text-slate-400 space-y-1.5 border border-dashed border-white/10 rounded-xl bg-slate-900/40">
+                        <p className="font-semibold text-slate-300">No tienes plantillas guardadas</p>
+                        <p className="text-[10px] text-slate-500 leading-relaxed">
+                          Guarda tus composiciones con colores, formas y físicas para reutilizarlas en cualquier momento.
+                        </p>
+                      </div>
+                    ) : (
+                      customTemplates.map((tmpl) => (
+                        <div
+                          key={tmpl.id}
+                          className="p-2.5 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-slate-800/80 flex items-center justify-between gap-2 transition-all"
+                        >
+                          <div
+                            onClick={() => {
+                              if (onLoadCustomTemplate) {
+                                onLoadCustomTemplate(tmpl);
+                              }
+                              setPresetDropdownOpen(false);
+                            }}
+                            className="flex-1 cursor-pointer truncate"
+                          >
+                            <div className="text-xs font-bold text-white truncate hover:text-[#3D80FD] transition-colors">
+                              {tmpl.name}
+                            </div>
+                            <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                              <Clock className="w-3 h-3 text-slate-500" />
+                              <span>{new Date(tmpl.createdAt).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}</span>
+                              <span>•</span>
+                              <span className="font-mono text-[#3D80FD]">{tmpl.layers.length} capas</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <div className="flex gap-0.5 mr-1">
+                              {tmpl.previewColors.slice(0, 3).map((c, i) => (
+                                <span
+                                  key={i}
+                                  className="w-3 h-3 rounded-full border border-white/20"
+                                  style={{ backgroundColor: c }}
+                                />
+                              ))}
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                exportTemplateToJson(tmpl);
+                              }}
+                              title="Descargar copia en JSON"
+                              className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`¿Eliminar la plantilla "${tmpl.name}"?`)) {
+                                  deleteCustomTemplate(tmpl.id);
+                                  setCustomTemplates(getSavedTemplates());
+                                }
+                              }}
+                              title="Eliminar plantilla"
+                              className="p-1 rounded text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

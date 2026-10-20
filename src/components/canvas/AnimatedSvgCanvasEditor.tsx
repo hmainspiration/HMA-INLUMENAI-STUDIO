@@ -36,7 +36,8 @@ import {
   Link2,
   Unlink,
   ClipboardPaste,
-  Check
+  Check,
+  Bookmark
 } from 'lucide-react';
 import { AnimatedLayer, BlendMode, CanvasAnimationType } from '../../types/hma';
 import { APP_VERSION } from '../../data/hmaDefinitions';
@@ -51,6 +52,8 @@ import { LeftToolRail, LeftRailTab } from './LeftToolRail';
 import { LeftToolDrawer } from './LeftToolDrawer';
 import { RightInspectorPanel } from './RightInspectorPanel';
 import { FloatingCanvasBottomBar } from './FloatingCanvasBottomBar';
+import { SaveTemplateModal } from '../modals/SaveTemplateModal';
+import { saveActiveDraft, CustomTemplate } from '../../utils/templateStorage';
 
 interface AnimatedSvgCanvasEditorProps {
   layers: AnimatedLayer[];
@@ -97,11 +100,13 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
 }) => {
   const [aspectRatio, setAspectRatio] = useState<'16:9' | '21:9' | '9:16' | '1:1'>('16:9');
   const [activeRailTab, setActiveRailTab] = useState<LeftRailTab>('layers');
-  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(true);
+  // Menús laterales ocultos por defecto; solo aparecen cuando el usuario los activa
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [zoomScale, setZoomScale] = useState<number>(100);
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(layers[0]?.id || null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [isRightPanelOpen, setIsRightPanelOpen] = useState<boolean>(true);
+  const [isRightPanelOpen, setIsRightPanelOpen] = useState<boolean>(false);
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState<boolean>(false);
   const [canvasBgColor, setCanvasBgColor] = useState<string>('#060C04');
 
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -110,6 +115,30 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
   const [pastedSvgCode, setPastedSvgCode] = useState<string>('');
   const [pastedLayerName, setPastedLayerName] = useState<string>('Capa SVG Importada');
   const [linkGaps, setLinkGaps] = useState<boolean>(true);
+
+  // Auto-guardado continuo en LocalStorage para no perder cambios de capas, colores ni físicas
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      saveActiveDraft({
+        projectName: 'Proyecto 01 — Isotipo Maestro',
+        activePresetId: 'hma-master',
+        paletteMode: 'profundo',
+        canvasBgColor,
+        aspectRatio,
+        canvasLayers: layers,
+        pieces: []
+      });
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [layers, canvasBgColor, aspectRatio]);
+
+  // Selección inteligente de capa: abre el inspector si el usuario hace clic intencional
+  const handleSelectLayer = (id: string, openInspector = true) => {
+    setSelectedLayerId(id);
+    if (openInspector) {
+      setIsRightPanelOpen(true);
+    }
+  };
 
   // Copy & Paste Layer Configuration
   const [copiedConfig, setCopiedConfig] = useState<CopiedLayerConfig | null>(null);
@@ -582,7 +611,10 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
         return (
           <div
             key={layer.id}
-            onClick={() => setSelectedLayerId(layer.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSelectLayer(layer.id, true);
+            }}
             style={layerStyle}
             className={`cursor-pointer transition-shadow ${
               layer.id === selectedLayerId && !isCinemaMode
@@ -730,7 +762,7 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
         onToggleOpen={() => setIsDrawerOpen((prev) => !prev)}
         layers={layers}
         selectedLayerId={selectedLayerId}
-        onSelectLayer={setSelectedLayerId}
+        onSelectLayer={(id) => handleSelectLayer(id, true)}
         onSetLayers={setLayers}
         aspectRatio={aspectRatio}
         onSetAspectRatio={setAspectRatio}
@@ -744,6 +776,13 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
         copiedConfig={copiedConfig}
         onCopyConfig={handleCopyLayerConfig}
         onPasteConfig={handlePasteLayerConfig}
+        onOpenSaveTemplateModal={() => setIsSaveTemplateModalOpen(true)}
+        onLoadCustomTemplate={(tmpl) => {
+          setLayers(tmpl.layers);
+          if (tmpl.canvasBgColor) setCanvasBgColor(tmpl.canvasBgColor);
+          if (tmpl.aspectRatio) setAspectRatio(tmpl.aspectRatio);
+          showToast(`Plantilla "${tmpl.name}" cargada`, 'paste');
+        }}
       />
 
       {/* Main Center Stage */}
@@ -764,7 +803,19 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
           </button>
         )}
 
-        {/* Floating Stage Controls (Zoom, Fullscreen Toggle) */}
+        {/* Floating Right Inspector Reopen Button (when collapsed) */}
+        {!isRightPanelOpen && selectedLayer && (
+          <button
+            onClick={() => setIsRightPanelOpen(true)}
+            title="Mostrar inspector de físicas"
+            className="absolute top-4 right-64 z-20 hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-[#060C04]/95 border border-[#3D80FD]/40 text-[#3D80FD] hover:text-white hover:bg-blue-950/80 shadow-2xl backdrop-blur-md transition-all text-xs font-mono font-bold group animate-fadeIn"
+          >
+            <Sliders className="w-4 h-4 text-[#3D80FD] group-hover:scale-110 transition-transform" />
+            <span>Inspector ({selectedLayer.name})</span>
+          </button>
+        )}
+
+        {/* Floating Stage Controls (Zoom, Fullscreen Toggle, Save Template) */}
         <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-[#060C04]/90 border border-white/10 p-1.5 rounded-xl shadow-xl backdrop-blur-md">
           <button
             onClick={() => setIsDrawerOpen((prev) => !prev)}
@@ -802,6 +853,17 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
           >
             <Video className="w-4 h-4" />
             <span className="hidden sm:inline text-[11px]">Modo Cine</span>
+          </button>
+
+          {/* Quick Save Template Button in HUD */}
+          <div className="w-[1px] h-4 bg-white/10 mx-0.5" />
+          <button
+            onClick={() => setIsSaveTemplateModalOpen(true)}
+            title="Guardar capas, colores y físicas como nueva plantilla"
+            className="p-1.5 px-2 rounded-lg bg-[#3D80FD]/20 text-[#3D80FD] border border-[#3D80FD]/40 hover:bg-[#3D80FD] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-mono font-bold shadow-sm cursor-pointer"
+          >
+            <Bookmark className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline text-[11px]">Guardar Plantilla</span>
           </button>
 
           {selectedLayer && (
@@ -991,6 +1053,18 @@ export const AnimatedSvgCanvasEditor: React.FC<AnimatedSvgCanvasEditorProps> = (
           startRecording();
         }}
         defaultBgColor="#040915"
+      />
+
+      {/* Save Custom Template Modal */}
+      <SaveTemplateModal
+        isOpen={isSaveTemplateModalOpen}
+        onClose={() => setIsSaveTemplateModalOpen(false)}
+        layers={layers}
+        canvasBgColor={canvasBgColor}
+        aspectRatio={aspectRatio}
+        onTemplateSaved={(saved) => {
+          showToast(`Plantilla "${saved.name}" guardada con éxito`, 'copy');
+        }}
       />
     </div>
   );
